@@ -110,6 +110,8 @@ public class TypetalkNotifier extends Notifier {
 
 		if (build.getResult().equals(Result.ABORTED)) {
 			return ":astonished: Build aborted.";
+		} else if (build.getResult().equals(Result.NOT_BUILT)) {
+			return ":astonished: Not built.";
 		} else if (build.getResult().equals(Result.FAILURE)) {
 			return ":rage: Build failure.";
 		} else if (build.getResult().equals(Result.UNSTABLE)) {

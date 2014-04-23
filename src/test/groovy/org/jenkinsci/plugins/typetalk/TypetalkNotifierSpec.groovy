@@ -20,26 +20,30 @@ class TypetalkNotifierSpec extends Specification {
 		summary ? summary.contains(expected) : expected == null
 
 		where:
-		notifyWhenSuccess | previousResult | result          || expected
-		false             | Result.SUCCESS | Result.SUCCESS  || null
-		false             | Result.SUCCESS | Result.UNSTABLE || 'unstable'
-		false             | Result.SUCCESS | Result.FAILURE  || 'failure'
-		false             | Result.SUCCESS | Result.ABORTED  || 'aborted'
+		notifyWhenSuccess | previousResult | result           || expected
+		false             | Result.SUCCESS | Result.SUCCESS   || null
+		false             | Result.SUCCESS | Result.UNSTABLE  || 'unstable'
+		false             | Result.SUCCESS | Result.FAILURE   || 'failure'
+		false             | Result.SUCCESS | Result.ABORTED   || 'aborted'
+		false             | Result.SUCCESS | Result.NOT_BUILT || 'Not built'
 
-		false             | Result.FAILURE | Result.SUCCESS  || 'recovered'
-		false             | Result.FAILURE | Result.UNSTABLE || 'unstable'
-		false             | Result.FAILURE | Result.FAILURE  || 'failure'
-		false             | Result.FAILURE | Result.ABORTED  || 'aborted'
+		false             | Result.FAILURE | Result.SUCCESS   || 'recovered'
+		false             | Result.FAILURE | Result.UNSTABLE  || 'unstable'
+		false             | Result.FAILURE | Result.FAILURE   || 'failure'
+		false             | Result.FAILURE | Result.ABORTED   || 'aborted'
+		false             | Result.FAILURE | Result.NOT_BUILT || 'Not built'
 
-		true              | Result.SUCCESS | Result.SUCCESS  || 'successful'
-		true              | Result.SUCCESS | Result.UNSTABLE || 'unstable'
-		true              | Result.SUCCESS | Result.FAILURE  || 'failure'
-		true              | Result.SUCCESS | Result.ABORTED  || 'aborted'
+		true              | Result.SUCCESS | Result.SUCCESS   || 'successful'
+		true              | Result.SUCCESS | Result.UNSTABLE  || 'unstable'
+		true              | Result.SUCCESS | Result.FAILURE   || 'failure'
+		true              | Result.SUCCESS | Result.ABORTED   || 'aborted'
+		true              | Result.SUCCESS | Result.NOT_BUILT || 'Not built'
 
-		true              | Result.FAILURE | Result.SUCCESS  || 'recovered'
-		true              | Result.FAILURE | Result.UNSTABLE || 'unstable'
-		true              | Result.FAILURE | Result.FAILURE  || 'failure'
-		true              | Result.FAILURE | Result.ABORTED  || 'aborted'
+		true              | Result.FAILURE | Result.SUCCESS   || 'recovered'
+		true              | Result.FAILURE | Result.UNSTABLE  || 'unstable'
+		true              | Result.FAILURE | Result.FAILURE   || 'failure'
+		true              | Result.FAILURE | Result.ABORTED   || 'aborted'
+		true              | Result.FAILURE | Result.NOT_BUILT || 'Not built'
 	}
 
 	def makeMockBuild(Result result, Result previousResult) {
