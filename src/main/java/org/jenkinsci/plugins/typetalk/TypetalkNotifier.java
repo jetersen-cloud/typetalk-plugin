@@ -11,9 +11,9 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.Secret;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.typetalk.api.Typetalk;
+import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -25,13 +25,11 @@ public class TypetalkNotifier extends Notifier {
 
 	public final String name;
 	public final String topicNumber;
-	public final boolean notifyWhenSuccess;
 
 	@DataBoundConstructor
 	public TypetalkNotifier(String name, String topicNumber, boolean notifyWhenSuccess) {
 		this.name = name;
 		this.topicNumber = topicNumber;
-		this.notifyWhenSuccess = notifyWhenSuccess;
 	}
 
 	@Override
@@ -43,42 +41,19 @@ public class TypetalkNotifier extends Notifier {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
 
-		final String rootUrl = Jenkins.getInstance().getRootUrl();
-		if (StringUtils.isEmpty(rootUrl)) {
-			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
-		}
-
-		// 前回からビルド成功で "ビルドが成功した場合も通知する" がオフの場合、通知しない
-		if (successFromPreviousBuild(build) && notifyWhenSuccess == false) {
+		if (successFromPreviousBuild(build)) {
 			return true;
 		}
 
-		// Typetalkに通知中...
-		listener.getLogger().println("Notifying to the Typetalk...");
+		listener.getLogger().println("Notifying build result to Typetalk...");
 
-		Credential credential = getDescriptor().getCredential(name);
-		if (credential == null) {
-			throw new IllegalStateException("Credential is not found.");
-		}
-		Typetalk typetalk = new Typetalk(credential.getClientId(), credential.getClientSecret());
-
-		String message = makeMessage(build, TypetalkResult.convert(build), rootUrl);
+		TypetalkMessage typetalkMessage = TypetalkMessage.convertFromResult(build);
+		String message = typetalkMessage.messageWithBuildInfo(build);
 		Long topicId = Long.valueOf(topicNumber);
-		typetalk.postMessage(topicId, message);
+
+		Typetalk.createFromName(name).postMessage(topicId, message);
 
 		return true;
-	}
-
-	private String makeMessage(AbstractBuild<?, ?> build, TypetalkResult typetalkResult, String rootUrl) {
-		final StringBuilder message = new StringBuilder();
-		message.append(typetalkResult);
-		message.append(" [ ");
-		message.append(build.getProject().getDisplayName());
-		message.append(" ]");
-		message.append("\n");
-		message.append(rootUrl);
-		message.append(build.getUrl());
-		return message.toString();
 	}
 
 	private boolean successFromPreviousBuild(AbstractBuild<?, ?> build) {

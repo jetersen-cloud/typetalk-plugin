@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.typetalk;
+package org.jenkinsci.plugins.typetalk.api;
 
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientCredentialsTokenRequest;
@@ -17,7 +17,10 @@ import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson.JacksonFactory;
+import hudson.model.AbstractBuild;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.typetalk.TypetalkNotifier;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -67,15 +70,25 @@ public class Typetalk {
 		this.clientSecret = clientSecret;
 	}
 
+	public static Typetalk createFromName(String name) {
+		TypetalkNotifier.DescriptorImpl descriptor = (TypetalkNotifier.DescriptorImpl) Jenkins.getInstance().getDescriptor(TypetalkNotifier.class);
+		TypetalkNotifier.Credential credential = descriptor.getCredential(name);
+		if (credential == null) {
+			throw new IllegalArgumentException("Credential is not found.");
+		}
+
+		return new Typetalk(credential.getClientId(), credential.getClientSecret());
+	}
+
 	/**
 	 * Typetalkにメッセージを通知する
 	 */
 	public int postMessage(final Long topicId, final String message) throws IOException {
 		final GenericUrl url = new PostMessageUrl(topicId);
-		final Message messageObj = new Message();
-		messageObj.setMessage(message);
+		final MessageEntity entity = new MessageEntity();
+		entity.setMessage(message);
 
-		final HttpContent content = new JsonHttpContent(JSON_FACTORY, messageObj);
+		final HttpContent content = new JsonHttpContent(JSON_FACTORY, entity);
 		final HttpRequest request = createRequestFactory().buildPostRequest(url, content);
 		HttpResponse response = request.execute();
 		response.disconnect();

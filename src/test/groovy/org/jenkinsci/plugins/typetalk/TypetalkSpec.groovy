@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.typetalk
 
 import org.apache.commons.httpclient.HttpStatus
+import org.jenkinsci.plugins.typetalk.api.Typetalk
 import spock.lang.Ignore
 import spock.lang.Specification
 

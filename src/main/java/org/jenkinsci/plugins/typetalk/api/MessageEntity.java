@@ -1,8 +1,8 @@
-package org.jenkinsci.plugins.typetalk;
+package org.jenkinsci.plugins.typetalk.api;
 
 import com.google.api.client.util.Key;
 
-public class Message {
+public class MessageEntity {
 
 	@Key
 	private String message;

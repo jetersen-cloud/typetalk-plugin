@@ -16,8 +16,4 @@
 		<f:textbox />
 	</f:entry>
 
-	<f:entry title="${%Notify even if build succeeds}" field="notifyWhenSuccess">
-		<f:checkbox />
-	</f:entry>
-
 </j:jelly>
