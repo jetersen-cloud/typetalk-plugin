@@ -4,13 +4,13 @@
 	-->
 	<f:section title="Typetalk">
 
-		<f:entry title="credentials" field="credentials">
+		<f:entry title="${%Credentials}" field="credentials">
 
-			<f:repeatable var="credential" header="credential" items="${descriptor.credentials}">
+			<f:repeatable var="credential" header="${%Credential}" items="${descriptor.credentials}">
 
 				<table width="100%">
 
-					<f:entry title="Name">
+					<f:entry title="${%Name}">
 						<f:textbox name="credential.name" value="${credential.name}"/>
 					</f:entry>
 

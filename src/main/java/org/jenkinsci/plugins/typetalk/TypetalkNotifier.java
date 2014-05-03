@@ -63,7 +63,7 @@ public class TypetalkNotifier extends Notifier {
 		Long topicId = Long.valueOf(topicNumber);
 
 		// Typetalkに通知中...
-		listener.getLogger().println("Notifying to the typetalk...");
+		listener.getLogger().println("Notifying to the Typetalk...");
 
 		Credential credential = getDescriptor().getCredential(name);
 		if (credential == null) {
@@ -158,7 +158,7 @@ public class TypetalkNotifier extends Notifier {
 
 		@Override
 		public String getDisplayName() {
-			return "Typetalkに通知";
+			return "Typetalk Notification";
 		}
 
 		@Override
