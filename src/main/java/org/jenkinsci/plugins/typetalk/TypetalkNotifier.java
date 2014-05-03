@@ -34,13 +34,6 @@ public class TypetalkNotifier extends Notifier {
 		this.notifyWhenSuccess = notifyWhenSuccess;
 	}
 
-	// for test
-	TypetalkNotifier(boolean notifyWhenSuccess) {
-		this.name = null;
-		this.topicNumber = null;
-		this.notifyWhenSuccess = notifyWhenSuccess;
-	}
-
 	@Override
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
@@ -49,18 +42,16 @@ public class TypetalkNotifier extends Notifier {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
-		String buildSummary = toBuildSummary(build);
-		if (buildSummary == null) {
-			return true;
-		}
 
 		final String rootUrl = Jenkins.getInstance().getRootUrl();
 		if (StringUtils.isEmpty(rootUrl)) {
 			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
 		}
 
-		String message = makeMessage(build, buildSummary, rootUrl);
-		Long topicId = Long.valueOf(topicNumber);
+		// 前回からビルド成功で "ビルドが成功した場合も通知する" がオフの場合、通知しない
+		if (successFromPreviousBuild(build) && notifyWhenSuccess == false) {
+			return true;
+		}
 
 		// Typetalkに通知中...
 		listener.getLogger().println("Notifying to the Typetalk...");
@@ -69,16 +60,18 @@ public class TypetalkNotifier extends Notifier {
 		if (credential == null) {
 			throw new IllegalStateException("Credential is not found.");
 		}
-
 		Typetalk typetalk = new Typetalk(credential.getClientId(), credential.getClientSecret());
+
+		String message = makeMessage(build, TypetalkResult.convert(build), rootUrl);
+		Long topicId = Long.valueOf(topicNumber);
 		typetalk.postMessage(topicId, message);
 
 		return true;
 	}
 
-	private String makeMessage(AbstractBuild<?, ?> build, String buildSummary, String rootUrl) {
+	private String makeMessage(AbstractBuild<?, ?> build, TypetalkResult typetalkResult, String rootUrl) {
 		final StringBuilder message = new StringBuilder();
-		message.append(buildSummary);
+		message.append(typetalkResult);
 		message.append(" [ ");
 		message.append(build.getProject().getDisplayName());
 		message.append(" ]");
@@ -88,38 +81,13 @@ public class TypetalkNotifier extends Notifier {
 		return message.toString();
 	}
 
-	/**
-	 * ビルドの要約メッセージを取得する。
-	 * 
-	 * @param build
-	 *            ビルド
-	 * @return 通知対象ならばビルドの要約メッセージ、通知対象でないならば {@code null}
-	 */
-	private String toBuildSummary(AbstractBuild<?, ?> build) {
-		// ビルドが成功に戻った場合
-		if (build.getResult().equals(Result.SUCCESS)
-				&& build.getPreviousBuild() != null
-				&& build.getPreviousBuild().getResult().isWorseThan(Result.SUCCESS)) {
-			return ":smiley: Build recovered.";
+	private boolean successFromPreviousBuild(AbstractBuild<?, ?> build) {
+		if (build.getPreviousBuild() == null) {
+			return build.getResult().equals(Result.SUCCESS);
+		} else {
+			return build.getResult().equals(Result.SUCCESS)
+				&& build.getPreviousBuild().getResult().equals(Result.SUCCESS);
 		}
-
-		// ビルド成功で "ビルドが成功した場合も通知する" がオフの場合、通知しない
-		if (build.getResult().equals(Result.SUCCESS) && notifyWhenSuccess == false) {
-			return null;
-		}
-
-		if (build.getResult().equals(Result.ABORTED)) {
-			return ":astonished: Build aborted.";
-		} else if (build.getResult().equals(Result.NOT_BUILT)) {
-			return ":astonished: Not built.";
-		} else if (build.getResult().equals(Result.FAILURE)) {
-			return ":rage: Build failure.";
-		} else if (build.getResult().equals(Result.UNSTABLE)) {
-			return ":cry: Build unstable.";
-		} else if (build.getResult().equals(Result.SUCCESS)) {
-			return ":smiley: Build successful.";
-		}
-		throw new RuntimeException("Unknown build result.");
 	}
 
 	@Override
