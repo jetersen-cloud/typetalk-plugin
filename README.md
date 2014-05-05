@@ -1,20 +1,25 @@
 This is a Jenkins plugin which notifies to Typetalk ( https://typetalk.in/ )
 
-#Build#
-The Jenkins plugin build is powered by the <a href="https://github.com/jenkinsci/gradle-jpi-plugin">gradle-jpi-plugin</a> (see its <a href="https://wiki.jenkins-ci.org/display/JENKINS/Gradle+JPI+Plugin">documentation</a>).
+# How to build
+- ref : https://wiki.jenkins-ci.org/display/JENKINS/Gradle+JPI+Plugin
 
-There are following targets defined:
+## Import to IDE
 
-Builds **.hpi** file
+```
+gradle cleanEclipse eclipse
+gradle cleanIdea idea
+```
 
-    gradle jpi
+## Launch for development
 
-Run development server:
+```
+gradle clean server
+```
 
-    gradle server
+## Package a plugin file
 
-###Debugging###
+```
+gradle clean jpi
+```
 
-Debuggins is configured with GRADLE_OPTIONS env variable.
-
-    GRADLE_OPTS="${GRADLE_OPTS} -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006" ./gradlew clean server
+If you don't install gradle, you can use gradlew / gradlew.bat instead of gradle.
