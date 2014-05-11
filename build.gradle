@@ -16,7 +16,7 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 
 group = 'org.jenkins-ci.plugins'
-version = '1.0.0-SNAPSHOT'
+version = '1.0.0'
 description = 'Typetalk Plugin'
 archivesBaseName = 'typetalk'
 
