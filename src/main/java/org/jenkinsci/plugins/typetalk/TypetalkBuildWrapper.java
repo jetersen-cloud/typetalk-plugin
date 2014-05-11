@@ -99,7 +99,7 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 		@Override
 		public String getDisplayName() {
-			return "Notify to Typetalk when the build starts/ends";
+			return "Notify Typetalk when the build starts/ends";
 		}
 	}
 
