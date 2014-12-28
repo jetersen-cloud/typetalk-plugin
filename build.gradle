@@ -1,17 +1,18 @@
 buildscript {
 	repositories {
-		maven {
-			name 'jenkins'
-			delegate.url('http://repo.jenkins-ci.org/public/')
-		}
+		// The plugin is currently only available via the Jenkins
+		// Maven repository, but has dependencies in Maven Central.
 		mavenCentral()
+		maven {
+			url 'http://repo.jenkins-ci.org/releases/'
+		}
 	}
 	dependencies {
-		classpath 'org.jenkins-ci.tools:gradle-jpi-plugin:0.5.0'
+		classpath 'org.jenkins-ci.tools:gradle-jpi-plugin:0.7.2'
 	}
 }
 
-apply plugin: 'jpi'
+apply plugin: 'org.jenkins-ci.jpi'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
@@ -19,14 +20,6 @@ group = 'org.jenkins-ci.plugins'
 version = '1.0.1-SNAPSHOT'
 description = 'Typetalk Plugin'
 archivesBaseName = 'typetalk'
-
-repositories {
-	mavenCentral()
-	maven {
-		name "jenkins"
-		delegate.url("http://repo.jenkins-ci.org/public/")
-	}
-}
 
 dependencies {
 	compile 'com.google.http-client:google-http-client-jackson:1.17.0-rc',
@@ -56,5 +49,5 @@ jenkinsPlugin {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '1.8'
+	gradleVersion = '1.12'
 }
