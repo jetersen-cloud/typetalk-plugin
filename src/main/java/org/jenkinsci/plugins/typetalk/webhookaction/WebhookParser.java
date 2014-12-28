@@ -24,11 +24,16 @@ public class WebhookParser {
                 sb.append(line).append('\n');
             }
 
-            JSONObject jsonObject = JSONObject.fromObject(sb.toString());
-            return jsonObject.getJSONObject("post").getString("message");
+            return parseJson(sb.toString());
 
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
+
+    String parseJson(String json) {
+        JSONObject jsonObject = JSONObject.fromObject(json);
+        return jsonObject.getJSONObject("post").getString("message");
+    }
+
 }
