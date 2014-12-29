@@ -12,9 +12,6 @@ import java.util.logging.Logger;
 
 public class BuildExecutor extends WebhookExecutor {
 
-    // TODO nakamura : パラメータ付きビルドの対応
-    // TODO nakamura : 認証付きの場合の確認
-
     private static final Logger LOGGER = Logger.getLogger(BuildExecutor.class.getName());
 
     private String job;
