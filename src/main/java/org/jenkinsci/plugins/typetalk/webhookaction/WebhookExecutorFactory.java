@@ -2,19 +2,24 @@ package org.jenkinsci.plugins.typetalk.webhookaction;
 
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.BuildExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.UndefinedExecutor;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class WebhookExecutorFactory {
-    public static WebhookExecutor create(HttpServletRequest req, HttpServletResponse rsp, String message) {
-        String[] splitMessage = message.split("\\s");
-        String command = splitMessage[1];
+    public static WebhookExecutor create(StaplerRequest req, StaplerResponse rsp, String message) {
+        LinkedList<String> messageList = new LinkedList<>(Arrays.asList(message.split("\\s")));
+        String botUser = messageList.poll(); // not used
+        String command = messageList.poll();
 
         switch (command) {
             case "build":
-                String job = splitMessage[2];
-                return new BuildExecutor(req, rsp, job);
+                String job = messageList.poll();
+                return new BuildExecutor(req, rsp, job, messageList);
             default:
                 return new UndefinedExecutor(req, rsp, command);
         }

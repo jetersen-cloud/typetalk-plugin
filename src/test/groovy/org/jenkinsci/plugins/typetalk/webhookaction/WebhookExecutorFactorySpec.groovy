@@ -2,29 +2,40 @@ package org.jenkinsci.plugins.typetalk.webhookaction
 
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.BuildExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.UndefinedExecutor
+import org.kohsuke.stapler.StaplerRequest
+import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
 class WebhookExecutorFactorySpec extends Specification {
 
-    @Unroll
-    def "create with message : #message"() {
-        setup:
-        def req = Mock(HttpServletRequest)
-        def res = Mock(HttpServletResponse)
+    def req = Mock(StaplerRequest)
+    def res = Mock(StaplerResponse)
 
+    @Unroll
+    def "create UndefinedExecutor"() {
+        when:
+        def executor = WebhookExecutorFactory.create(req, res, "@jenkins+ dummy")
+
+        then:
+        executor.class == UndefinedExecutor
+    }
+
+    @Unroll
+    def "create BuildExecutor with : #message"() {
         when:
         def executor = WebhookExecutorFactory.create(req, res, message)
 
         then:
-        executor.class == result
+        executor.class == BuildExecutor
+        executor.job == "typetalk-plugin"
+        executor.parameters == parameters
 
         where:
-        message                           || result
-        "@jenkins+ dummy"                 || UndefinedExecutor
-        "@jenkins+ build typetalk-plugin" || BuildExecutor
+        message                                                   || parameters
+        "@jenkins+ build typetalk-plugin"                         || []
+        "@jenkins+ build typetalk-plugin 1.0.0"                   || ["1.0.0"]
+        "@jenkins+ build typetalk-plugin version=1.0.0"           || ["version=1.0.0"]
+        "@jenkins+ build typetalk-plugin version=1.0.0 env=stage" || ["version=1.0.0", "env=stage"]
     }
 }

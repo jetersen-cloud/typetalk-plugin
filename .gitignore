@@ -7,3 +7,4 @@ work/
 .settings/
 classes/
 src/test/resources/config.properties
+target
