@@ -1,14 +1,14 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.BuildExecutor;
+import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.HelpExecutor;
+import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.ListExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.UndefinedExecutor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 public class WebhookExecutorFactory {
     public static WebhookExecutor create(StaplerRequest req, StaplerResponse rsp, String message) {
@@ -20,6 +20,10 @@ public class WebhookExecutorFactory {
             case "build":
                 String job = messageList.poll();
                 return new BuildExecutor(req, rsp, job, messageList);
+            case "list":
+                return new ListExecutor(req, rsp, command);
+            case "help":
+                return new HelpExecutor(req, rsp, command);
             default:
                 return new UndefinedExecutor(req, rsp, command);
         }

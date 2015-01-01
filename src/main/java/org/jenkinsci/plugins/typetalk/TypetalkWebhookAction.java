@@ -20,14 +20,10 @@ import java.io.IOException;
 @Extension
 public class TypetalkWebhookAction implements RootAction {
 
-    // FIXME parameterized build
     // FIXME check authentication
 
     // TODO handle response back ( if Typetalk supports it )
-    // TODO add list executor ( with regexp filter )
-    // TODO add help executor
-
-    // TODO enable alias job name
+    // TODO enable alias job name to simplify build parameter
 
     @Override
     public String getIconFileName() {
