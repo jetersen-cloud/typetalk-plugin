@@ -2,7 +2,13 @@ package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl
 
 import hudson.Launcher
 import hudson.model.*
+import hudson.security.ACL
+import hudson.security.AuthorizationStrategy
+import hudson.security.Permission
 import hudson.util.OneShotEvent
+import org.acegisecurity.Authentication
+import org.acegisecurity.context.SecurityContextHolder
+import org.acegisecurity.providers.TestingAuthenticationToken
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor
 import org.junit.Rule
 import org.jvnet.hudson.test.JenkinsRule
@@ -10,12 +16,13 @@ import org.jvnet.hudson.test.TestBuilder
 import org.kohsuke.stapler.StaplerRequest
 import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 
 class BuildExecutorSpec extends Specification {
 
-    @Rule JenkinsRule jenkins = new JenkinsRule()
+    @Rule JenkinsRule j = new JenkinsRule()
 
     def req = Mock(StaplerRequest)
     def res = Mock(StaplerResponse)
@@ -154,10 +161,34 @@ class BuildExecutorSpec extends Specification {
         getBuildParameter("env") == null
     }
 
+    @Unroll
+    def "execute : #username"() {
+        setup:
+        setUpProject([])
+        executor = new BuildExecutor(req, res, "typetalk-plugin", [])
+
+        def old = ACL.impersonate(new TestingAuthenticationToken(username, null, null))
+        setUpAuthorizationStrategy()
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(result)
+
+        cleanup:
+        SecurityContextHolder.setContext(old);
+
+        where:
+        username         || result
+        "authorized"     || HttpServletResponse.SC_OK
+        "not authorized" || HttpServletResponse.SC_FORBIDDEN
+    }
+
     // --- helper method ---
 
     def setUpProject(spds) {
-        project = jenkins.createFreeStyleProject("typetalk-plugin")
+        project = j.createFreeStyleProject("typetalk-plugin")
 
         project.quietPeriod = 0
         project.addProperty(new ParametersDefinitionProperty(spds))
@@ -172,6 +203,25 @@ class BuildExecutorSpec extends Specification {
 
     def getBuildParameter(key) {
         project.lastBuild.getAction(ParametersAction.class).getParameter(key).value
+    }
+
+    def setUpAuthorizationStrategy() {
+        j.jenkins.setAuthorizationStrategy(new AuthorizationStrategy() {
+            @Override
+            ACL getRootACL() {
+                new ACL() {
+                    @Override
+                    boolean hasPermission(Authentication a, Permission permission) {
+                        a.name == "authorized"
+                    }
+                }
+            }
+
+            @Override
+            Collection<String> getGroups() {
+                Collections.emptyList()
+            }
+        })
     }
 
 }

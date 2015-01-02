@@ -11,11 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class BuildExecutor extends WebhookExecutor {
-
-    private static final Logger LOGGER = Logger.getLogger(BuildExecutor.class.getName());
 
     private String job;
 
@@ -49,23 +46,19 @@ public class BuildExecutor extends WebhookExecutor {
     public void execute() {
         TopLevelItem item = Jenkins.getInstance().getItemMap().get(job);
         if (item == null || !(item instanceof AbstractProject)) {
-            String message = "'" + job + "' is not found";
-            LOGGER.warning(message);
+            outputError("'" + job + "' is not found");
+            return;
+        }
+        AbstractProject project = ((AbstractProject) item);
 
-            rsp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            writer.println(message);
-
+        if (!project.hasPermission(Item.BUILD)) {
+            String name = Jenkins.getAuthentication().getName();
+            outputError(String.format("'%s' cannot be built by '%s'", job, name), HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        AbstractProject project = ((AbstractProject) item);
         Jenkins.getInstance().getQueue().schedule(project, project.getQuietPeriod(), getParametersAction(project), getCauseAction());
-
-        String message = "'" + job + "' has been scheduled";
-        LOGGER.info(message);
-
-        rsp.setStatus(HttpServletResponse.SC_OK);
-        writer.println(message);
+        output("'" + job + "' has been scheduled");
     }
 
     private Action getParametersAction(AbstractProject project) {

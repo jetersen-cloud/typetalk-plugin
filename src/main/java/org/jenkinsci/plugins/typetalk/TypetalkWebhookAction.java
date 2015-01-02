@@ -20,8 +20,6 @@ import java.io.IOException;
 @Extension
 public class TypetalkWebhookAction implements RootAction {
 
-    // FIXME check authentication
-
     // TODO handle response back ( if Typetalk supports it )
     // TODO enable alias job name to simplify build parameter
 
