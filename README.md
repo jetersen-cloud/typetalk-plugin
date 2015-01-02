@@ -1,3 +1,5 @@
+[![Build Status](https://jenkins.ci.cloudbees.com/job/plugins/job/typetalk-plugin/badge/icon)](https://jenkins.ci.cloudbees.com/job/plugins/job/typetalk-plugin/)
+
 This is a Jenkins plugin which notifies to Typetalk ( https://typetalk.in/ )
 
 # How to build
