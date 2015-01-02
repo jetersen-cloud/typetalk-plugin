@@ -12,7 +12,7 @@ import java.util.LinkedList;
 
 public class WebhookExecutorFactory {
     public static WebhookExecutor create(StaplerRequest req, StaplerResponse rsp, String message) {
-        LinkedList<String> messageList = new LinkedList<>(Arrays.asList(message.split("\\s")));
+        LinkedList<String> messageList = new LinkedList<>(Arrays.asList(message.split("\\s+")));
         String botUser = messageList.poll(); // not used
         String command = messageList.poll();
 
