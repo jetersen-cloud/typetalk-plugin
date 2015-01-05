@@ -101,7 +101,7 @@ public class TypetalkNotifier extends Notifier {
 
 		@Override
 		public String getDisplayName() {
-			return "Typetalk Notification";
+			return "Notify Typetalk when the build fails";
 		}
 
 		@Override
