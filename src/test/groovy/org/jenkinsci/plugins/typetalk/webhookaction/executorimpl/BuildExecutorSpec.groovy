@@ -6,6 +6,7 @@ import hudson.security.ACL
 import hudson.security.AuthorizationStrategy
 import hudson.security.Permission
 import hudson.util.OneShotEvent
+import jenkins.model.JenkinsLocationConfiguration
 import org.acegisecurity.Authentication
 import org.acegisecurity.context.SecurityContextHolder
 import org.acegisecurity.providers.TestingAuthenticationToken
@@ -22,7 +23,7 @@ import javax.servlet.http.HttpServletResponse
 
 class BuildExecutorSpec extends Specification {
 
-    @Rule JenkinsRule j = new JenkinsRule()
+    @Rule JenkinsRule j
 
     def req = Mock(WebhookRequest)
     def res = Mock(StaplerResponse)
@@ -38,6 +39,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : project is not found"() {
         setup:
+        setUpRootUrl()
         executor = new BuildExecutor(req, res, "typetalk-plugin", [])
 
         when:
@@ -49,6 +51,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : no parameter"() {
         setup:
+        setUpRootUrl()
         setUpProject([])
         executor = new BuildExecutor(req, res, "typetalk-plugin", [])
 
@@ -61,6 +64,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : parameter without key"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", null, null)
         ])
@@ -77,6 +81,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : single parameter"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", null, null)
         ])
@@ -93,6 +98,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : multiple parameters"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", null, null),
             new StringParameterDefinition("env", null, null)
@@ -111,6 +117,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : default parameter"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", "1.0.0-SNAPSHOT", null)
         ])
@@ -127,6 +134,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : illegal parameter format"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", null, null),
             new StringParameterDefinition("env", null, null)
@@ -145,6 +153,7 @@ class BuildExecutorSpec extends Specification {
 
     def "execute : not set without key when multiple parameters are defined"() {
         setup:
+        setUpRootUrl()
         setUpProject([
             new StringParameterDefinition("version", null, null),
             new StringParameterDefinition("env", null, null)
@@ -164,6 +173,7 @@ class BuildExecutorSpec extends Specification {
     @Unroll
     def "execute : #username"() {
         setup:
+        setUpRootUrl()
         setUpProject([])
         executor = new BuildExecutor(req, res, "typetalk-plugin", [])
 
@@ -186,6 +196,10 @@ class BuildExecutorSpec extends Specification {
     }
 
     // --- helper method ---
+
+    def setUpRootUrl() {
+        JenkinsLocationConfiguration.get().url = "http://localhost:8080/"
+    }
 
     def setUpProject(spds) {
         project = j.createFreeStyleProject("typetalk-plugin")

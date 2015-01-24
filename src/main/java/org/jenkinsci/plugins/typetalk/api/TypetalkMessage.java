@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.typetalk.api;
 
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Result;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -83,6 +84,26 @@ public class TypetalkMessage {
 		builder.append("\n");
 		builder.append(rootUrl);
 		builder.append(build.getUrl());
+
+		return builder.toString();
+	}
+
+	public String messageWithProjectInfo(AbstractProject project) {
+		final String rootUrl = Jenkins.getInstance().getRootUrl();
+		if (StringUtils.isEmpty(rootUrl)) {
+			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
+		}
+
+		final StringBuilder builder = new StringBuilder();
+		builder.append(emoji.symbol);
+		builder.append(" ");
+		builder.append(message);
+		builder.append("\n");
+		builder.append("\n");
+		builder.append(rootUrl);
+		if (project != null) {
+			builder.append(project.getUrl());
+		}
 
 		return builder.toString();
 	}

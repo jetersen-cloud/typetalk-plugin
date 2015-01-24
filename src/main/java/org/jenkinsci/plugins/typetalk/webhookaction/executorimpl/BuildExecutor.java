@@ -47,19 +47,19 @@ public class BuildExecutor extends WebhookExecutor {
     public void execute() {
         TopLevelItem item = Jenkins.getInstance().getItemMap().get(job);
         if (item == null || !(item instanceof AbstractProject)) {
-            outputError("'" + job + "' is not found");
+            outputError("Project [ " + job + " ] is not found");
             return;
         }
         AbstractProject project = ((AbstractProject) item);
 
         if (!project.hasPermission(Item.BUILD)) {
             String name = Jenkins.getAuthentication().getName();
-            outputError(String.format("'%s' cannot be built by '%s'", job, name), HttpServletResponse.SC_FORBIDDEN);
+            outputError(String.format("Project [ %s ] cannot be built by '%s'", job, name), HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
         Jenkins.getInstance().getQueue().schedule(project, project.getQuietPeriod(), getParametersAction(project), getCauseAction());
-        output("'" + job + "' has been scheduled");
+        output("Project [ " + job + " ] has been scheduled", project);
     }
 
     private Action getParametersAction(AbstractProject project) {

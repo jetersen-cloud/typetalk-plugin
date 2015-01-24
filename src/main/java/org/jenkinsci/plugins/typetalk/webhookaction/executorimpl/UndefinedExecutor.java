@@ -12,6 +12,6 @@ public class UndefinedExecutor extends WebhookExecutor {
 
     @Override
     public void execute() {
-        outputError("command '" + command + "' is not defined");
+        outputError("Command [ " + command + " ] is not defined");
     }
 }

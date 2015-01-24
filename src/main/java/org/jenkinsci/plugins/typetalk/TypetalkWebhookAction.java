@@ -20,7 +20,6 @@ import java.io.IOException;
 @Extension
 public class TypetalkWebhookAction implements RootAction {
 
-    // TODO handle response back ( if Typetalk supports it )
     // TODO enable alias job name to simplify build parameter
 
     @Override

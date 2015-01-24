@@ -1,5 +1,8 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
+import hudson.model.AbstractProject;
+import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +27,11 @@ public abstract class WebhookExecutor {
     public abstract void execute();
 
     protected void output(String message) {
-        outputInternal(Level.INFO, message, HttpServletResponse.SC_OK);
+        output(message, null);
+    }
+
+    protected void output(String message, AbstractProject project) {
+        outputInternal(Level.INFO, HttpServletResponse.SC_OK, TypetalkMessage.Emoji.SMILEY, message, project);
     }
 
     protected void outputError(String message) {
@@ -32,18 +39,28 @@ public abstract class WebhookExecutor {
     }
 
     protected void outputError(String message, int status) {
-        outputInternal(Level.WARNING, message, status);
+        outputInternal(Level.WARNING, status, TypetalkMessage.Emoji.CRY, message, null);
     }
 
-    private void outputInternal(Level level, String message, int status) {
+    private void outputInternal(Level level, int status, TypetalkMessage.Emoji emoji, String message, AbstractProject project) {
         try {
             logger.log(level, message);
 
-            rsp.setContentType("text/plain");
+            rsp.setContentType("application/json");
             rsp.setStatus(status);
-            rsp.getWriter().println(message);
+            rsp.getWriter().println(buildResponseMessage(emoji, message, project));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private String buildResponseMessage(TypetalkMessage.Emoji emoji, String message, AbstractProject project) {
+        JSONObject jsonObject = new JSONObject();
+
+        TypetalkMessage typetalkMessage = new TypetalkMessage(emoji, message);
+        jsonObject.element("message", typetalkMessage.messageWithProjectInfo(project));
+        jsonObject.element("replyTo", req.getPostId());
+
+        return jsonObject.toString();
     }
 }
