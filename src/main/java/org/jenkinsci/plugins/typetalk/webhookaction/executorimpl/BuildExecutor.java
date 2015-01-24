@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 import hudson.model.*;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
+import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -20,7 +21,7 @@ public class BuildExecutor extends WebhookExecutor {
 
     private Map<String, String> parameterMap = new HashMap<>();
 
-    public BuildExecutor(StaplerRequest req, StaplerResponse rsp, String job, List<String> parameters) {
+    public BuildExecutor(WebhookRequest req, StaplerResponse rsp, String job, List<String> parameters) {
         super(req, rsp, "build");
         this.job = job;
         this.parameters = parameters;

@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,11 +11,11 @@ public abstract class WebhookExecutor {
 
     protected Logger logger = Logger.getLogger(getClass().getName());
 
-    protected StaplerRequest req;
+    protected WebhookRequest req;
     protected StaplerResponse rsp;
     protected String command;
 
-    protected WebhookExecutor(StaplerRequest req, StaplerResponse rsp, String command) {
+    protected WebhookExecutor(WebhookRequest req, StaplerResponse rsp, String command) {
         this.req = req;
         this.rsp = rsp;
         this.command = command;

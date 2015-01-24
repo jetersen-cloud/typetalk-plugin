@@ -4,7 +4,7 @@ import hudson.Extension;
 import hudson.model.RootAction;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutorFactory;
-import org.jenkinsci.plugins.typetalk.webhookaction.WebhookParser;
+import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -44,9 +44,7 @@ public class TypetalkWebhookAction implements RootAction {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
                     throws IOException, ServletException {
-                String message = new WebhookParser(req).parse();
-                WebhookExecutor executor = WebhookExecutorFactory.create(req, rsp, message);
-
+                WebhookExecutor executor = WebhookExecutorFactory.create(new WebhookRequest(req), rsp);
                 executor.execute();
             }
         };

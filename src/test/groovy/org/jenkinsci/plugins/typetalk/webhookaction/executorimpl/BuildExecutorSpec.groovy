@@ -10,10 +10,10 @@ import org.acegisecurity.Authentication
 import org.acegisecurity.context.SecurityContextHolder
 import org.acegisecurity.providers.TestingAuthenticationToken
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor
+import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest
 import org.junit.Rule
 import org.jvnet.hudson.test.JenkinsRule
 import org.jvnet.hudson.test.TestBuilder
-import org.kohsuke.stapler.StaplerRequest
 import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -24,7 +24,7 @@ class BuildExecutorSpec extends Specification {
 
     @Rule JenkinsRule j = new JenkinsRule()
 
-    def req = Mock(StaplerRequest)
+    def req = Mock(WebhookRequest)
     def res = Mock(StaplerResponse)
 
     AbstractProject project

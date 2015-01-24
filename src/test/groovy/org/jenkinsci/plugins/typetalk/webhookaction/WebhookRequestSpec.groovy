@@ -1,13 +1,10 @@
 package org.jenkinsci.plugins.typetalk.webhookaction
 
+import net.sf.json.JSONObject
 import spock.lang.Specification
 
-class WebhookParserSpec extends Specification {
-
-    def parseJson() {
-        setup:
-        def parser = new WebhookParser()
-        def json = """
+class WebhookRequestSpec extends Specification {
+    def json = """
 {
   "topic": {
     "id": 9526,
@@ -42,8 +39,14 @@ class WebhookParserSpec extends Specification {
 }
 """
 
+    def parseJson() {
+        setup:
+        def request = new WebhookRequest()
+        request.json = JSONObject.fromObject(json)
+
         expect:
-        parser.parseJson(json) == "@ikikkobot+ build hello-typetalk-plugin"
+        request.getPostMessage() == "@ikikkobot+ build hello-typetalk-plugin"
+        request.getPostId() == 754399
     }
 
 }

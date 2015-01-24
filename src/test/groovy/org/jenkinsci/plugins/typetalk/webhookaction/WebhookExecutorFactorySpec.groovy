@@ -4,20 +4,22 @@ import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.BuildExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.HelpExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.ListExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.UndefinedExecutor
-import org.kohsuke.stapler.StaplerRequest
 import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
 import spock.lang.Unroll
 
 class WebhookExecutorFactorySpec extends Specification {
 
-    def req = Mock(StaplerRequest)
+    def req = Mock(WebhookRequest)
     def res = Mock(StaplerResponse)
 
     @Unroll
     def "create BuildExecutor : #message"() {
+        setup:
+        req.postMessage >> message
+
         when:
-        def executor = WebhookExecutorFactory.create(req, res, message)
+        def executor = WebhookExecutorFactory.create(req, res)
 
         then:
         executor.class == BuildExecutor
@@ -33,24 +35,33 @@ class WebhookExecutorFactorySpec extends Specification {
     }
 
     def "create ListExecutor"() {
+        setup:
+        req.postMessage >> "@jenkins+ list"
+
         when:
-        def executor = WebhookExecutorFactory.create(req, res, "@jenkins+ list")
+        def executor = WebhookExecutorFactory.create(req, res)
 
         then:
         executor.class == ListExecutor
     }
 
     def "create HelpExecutor"() {
+        setup:
+        req.postMessage >> "@jenkins+ help"
+
         when:
-        def executor = WebhookExecutorFactory.create(req, res, "@jenkins+ help")
+        def executor = WebhookExecutorFactory.create(req, res)
 
         then:
         executor.class == HelpExecutor
     }
 
     def "create UndefinedExecutor"() {
+        setup:
+        req.postMessage >> "@jenkins+ dummy"
+
         when:
-        def executor = WebhookExecutorFactory.create(req, res, "@jenkins+ dummy")
+        def executor = WebhookExecutorFactory.create(req, res)
 
         then:
         executor.class == UndefinedExecutor
