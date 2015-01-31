@@ -45,15 +45,23 @@ class WebhookExecutorFactorySpec extends Specification {
         executor.class == ListExecutor
     }
 
-    def "create HelpExecutor"() {
+    @Unroll
+    def "create HelpExecutor : #message"() {
         setup:
-        req.postMessage >> "@jenkins+ help"
+        req.postMessage >> message
 
         when:
         def executor = WebhookExecutorFactory.create(req, res)
 
         then:
         executor.class == HelpExecutor
+
+        where:
+        message                || result
+        "@jenkins+"            || true
+        "@jenkins+ help"       || true
+        "@jenkins+ help build" || true
+        "@jenkins+ build"      || true
     }
 
     def "create UndefinedExecutor"() {

@@ -14,9 +14,14 @@ public class TypetalkMessage {
 		ASTONISHED(":astonished:"),
 		RAGE(":rage:"),
 		CRY(":cry:"),
-		SMILEY(":smiley:");
+		SMILEY(":smiley:"),
+		BOOK(":book:");
 
 		private String symbol;
+
+		public String getSymbol() {
+			return symbol;
+		}
 
 		Emoji(String symbol) {
 			this.symbol = symbol;
@@ -98,7 +103,6 @@ public class TypetalkMessage {
 		builder.append(emoji.symbol);
 		builder.append(" ");
 		builder.append(message);
-		builder.append("\n");
 		builder.append("\n");
 		builder.append(rootUrl);
 		if (project != null) {
