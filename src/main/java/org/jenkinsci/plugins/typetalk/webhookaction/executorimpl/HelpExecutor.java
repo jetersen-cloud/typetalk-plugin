@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -29,7 +30,11 @@ public class HelpExecutor extends WebhookExecutor {
 
     @Override
     public void execute() {
-        output("Command [ help ] is executed", getMessages(), TypetalkMessage.Emoji.BOOK);
+        ResponseParameter responseParameter = new ResponseParameter(ResponseParameter.flatMessages(getMessages()));
+        responseParameter.setDescription("Command [ help ] is executed");
+        responseParameter.setEmoji(TypetalkMessage.Emoji.BOOK);
+
+        output(responseParameter);
     }
 
     private List<String> getMessages() {

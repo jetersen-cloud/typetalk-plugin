@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
+import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -12,6 +13,6 @@ public class UndefinedExecutor extends WebhookExecutor {
 
     @Override
     public void execute() {
-        outputError("Command [ " + command + " ] is not defined");
+        outputError(new ResponseParameter("Command [ " + command + " ] is not defined"));
     }
 }

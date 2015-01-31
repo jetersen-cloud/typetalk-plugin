@@ -2,9 +2,9 @@ package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
 import hudson.model.*;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -47,19 +47,22 @@ public class BuildExecutor extends WebhookExecutor {
     public void execute() {
         TopLevelItem item = Jenkins.getInstance().getItemMap().get(job);
         if (item == null || !(item instanceof AbstractProject)) {
-            outputError("Project [ " + job + " ] is not found");
+            outputError(new ResponseParameter("Project [ " + job + " ] is not found"));
             return;
         }
         AbstractProject project = ((AbstractProject) item);
 
         if (!project.hasPermission(Item.BUILD)) {
             String name = Jenkins.getAuthentication().getName();
-            outputError(String.format("Project [ %s ] cannot be built by '%s'", job, name), HttpServletResponse.SC_FORBIDDEN);
+            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", job, name)), HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
         Jenkins.getInstance().getQueue().schedule(project, project.getQuietPeriod(), getParametersAction(project), getCauseAction());
-        output("Project [ " + job + " ] has been scheduled", project);
+
+        ResponseParameter responseParameter = new ResponseParameter("Project [ " + job + " ] has been scheduled");
+        responseParameter.setProject(project);
+        output(responseParameter);
     }
 
     private Action getParametersAction(AbstractProject project) {
