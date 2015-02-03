@@ -15,7 +15,9 @@ public class TypetalkMessage {
 		RAGE(":rage:"),
 		CRY(":cry:"),
 		SMILEY(":smiley:"),
-		BOOK(":book:");
+		MASK(":mask:"),
+		BOOK(":book:"),
+		PAGE_FACING_UP(":page_facing_up:");
 
 		private String symbol;
 

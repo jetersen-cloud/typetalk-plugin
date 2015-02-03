@@ -31,7 +31,8 @@ public class WebhookExecutorFactory {
 
                 return new BuildExecutor(req, rsp, job, parameters);
             case "list":
-                return new ListExecutor(req, rsp, command);
+                String pattern = parameters.poll();
+                return new ListExecutor(req, rsp, pattern);
             case "help":
                 return new HelpExecutor(req, rsp, botUser, parameters);
             default:

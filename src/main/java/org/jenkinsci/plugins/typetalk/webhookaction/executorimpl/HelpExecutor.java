@@ -46,6 +46,8 @@ public class HelpExecutor extends WebhookExecutor {
         switch (command) {
             case "build":
                 return getBuildMessages();
+            case "list":
+                return getListMessages();
             default:
                 return getDefaultMessages();
         }
@@ -56,6 +58,7 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add("Usage");
         messages.add("```");
         messages.add(botUser + " build <project> (<key=value>)");
+        messages.add(botUser + " list (<regexp filter>)");
         messages.add(botUser + " help (<sub command>)");
         messages.add("```");
 
@@ -74,6 +77,22 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add(botUser + " build helloWorldProject 1.0.0                   | build with only single parameter");
         messages.add(botUser + " build helloWorldProject version=1.0.0           | build with single parameter");
         messages.add(botUser + " build helloWorldProject version=1.0.0 env=stage | build with multiple parameters");
+        messages.add("```");
+
+        return messages;
+    }
+
+    private List<String> getListMessages() {
+        List<String> messages = new ArrayList<>();
+        messages.add("Usage");
+        messages.add("```");
+        messages.add(botUser + " list (<regexp filter>)");
+        messages.add("```");
+        messages.add(TypetalkMessage.Emoji.BOOK.getSymbol() + " Sample");
+        messages.add("```");
+        messages.add(botUser + " list            | list all projects ");
+        messages.add(botUser + " list helloWorld | list projects with simple filter");
+        messages.add(botUser + " list hel....rld | list projects with regexp filter");
         messages.add("```");
 
         return messages;

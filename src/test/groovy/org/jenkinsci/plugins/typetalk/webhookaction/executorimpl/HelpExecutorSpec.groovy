@@ -37,6 +37,7 @@ class HelpExecutorSpec extends Specification {
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
         writer.toString().contains("build <project>")
+        writer.toString().contains("list")
         writer.toString().contains("help")
 
         where:
@@ -57,6 +58,20 @@ class HelpExecutorSpec extends Specification {
         1 * res.setStatus(HttpServletResponse.SC_OK)
         writer.toString().contains("build <project> (<key=value>)")
         writer.toString().contains("build helloWorldProject version=1.0.0 env=stage")
+    }
+
+    def "execute : parameters [list]"() {
+        setup:
+        setUpRootUrl()
+        executor = new HelpExecutor(req, res, "@jenkins+", ["list"] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("list")
+        writer.toString().contains("list helloWorld")
     }
 
     // --- helper method ---
