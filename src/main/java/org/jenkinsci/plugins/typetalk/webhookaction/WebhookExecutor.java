@@ -26,23 +26,20 @@ public abstract class WebhookExecutor {
     public abstract void execute();
 
     protected void output(ResponseParameter parameter) {
-        outputInternal(Level.INFO, HttpServletResponse.SC_OK, parameter);
+        outputInternal(Level.INFO, parameter);
     }
 
     protected void outputError(ResponseParameter parameter) {
-        outputError(parameter, HttpServletResponse.SC_BAD_REQUEST);
+        parameter.setEmoji(TypetalkMessage.Emoji.CRY);
+        outputInternal(Level.WARNING, parameter);
     }
 
-    protected void outputError(ResponseParameter parameter, int status) {
-        outputInternal(Level.WARNING, status, parameter);
-    }
-
-    private void outputInternal(Level level, int status, ResponseParameter parameter) {
+    private void outputInternal(Level level, ResponseParameter parameter) {
         try {
             logger.log(level, parameter.getDescription());
 
             rsp.setContentType("application/json");
-            rsp.setStatus(status);
+            rsp.setStatus(HttpServletResponse.SC_OK);
             rsp.getWriter().println(buildResponseMessage(parameter));
         } catch (IOException e) {
             throw new IllegalStateException(e);

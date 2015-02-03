@@ -23,10 +23,10 @@ public class ResponseParameter {
         return message;
     }
 
-    private TypetalkMessage.Emoji emoji = TypetalkMessage.Emoji.SMILEY;
+    private TypetalkMessage.Emoji emoji;
 
     public TypetalkMessage.Emoji getEmoji() {
-        return emoji;
+        return emoji != null ? emoji : TypetalkMessage.Emoji.SMILEY;
     }
 
     public void setEmoji(TypetalkMessage.Emoji emoji) {

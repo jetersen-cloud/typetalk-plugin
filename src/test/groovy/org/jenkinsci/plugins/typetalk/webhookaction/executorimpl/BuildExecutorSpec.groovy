@@ -46,7 +46,8 @@ class BuildExecutorSpec extends Specification {
         executor.execute()
 
         then:
-        1 * res.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        !isBuilt()
    }
 
     def "execute : no parameter"() {
@@ -57,9 +58,11 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
+        buildStarted.block()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
+        isBuilt()
     }
 
     def "execute : parameter without key"() {
@@ -182,17 +185,19 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
+        if (isBuilt) buildStarted.block()
 
         then:
-        1 * res.setStatus(result)
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        isBuilt() == isBuilt
 
         cleanup:
         SecurityContextHolder.setContext(old);
 
         where:
-        username         || result
-        "authorized"     || HttpServletResponse.SC_OK
-        "not authorized" || HttpServletResponse.SC_FORBIDDEN
+        username         || isBuilt
+        "authorized"     || true
+        "not authorized" || false
     }
 
     // --- helper method ---
@@ -213,6 +218,10 @@ class BuildExecutorSpec extends Specification {
                 true
             }
         })
+    }
+
+    def isBuilt() {
+        project?.lastBuild != null
     }
 
     def getBuildParameter(key) {

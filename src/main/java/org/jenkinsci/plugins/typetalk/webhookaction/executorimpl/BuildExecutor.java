@@ -7,7 +7,6 @@ import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +53,7 @@ public class BuildExecutor extends WebhookExecutor {
 
         if (!project.hasPermission(Item.BUILD)) {
             String name = Jenkins.getAuthentication().getName();
-            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", job, name)), HttpServletResponse.SC_FORBIDDEN);
+            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", job, name)));
             return;
         }
 
