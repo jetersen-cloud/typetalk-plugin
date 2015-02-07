@@ -14,13 +14,8 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 
-/**
- * @see <a href="https://github.com/github/hubot-scripts/blob/master/src/scripts/jenkins.coffee">hubot script</a>
- */
 @Extension
 public class TypetalkWebhookAction implements RootAction {
-
-    // TODO enable alias job name to simplify build parameter
 
     @Override
     public String getIconFileName() {

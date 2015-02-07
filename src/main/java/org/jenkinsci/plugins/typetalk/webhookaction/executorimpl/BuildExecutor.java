@@ -14,15 +14,15 @@ import java.util.Map;
 
 public class BuildExecutor extends WebhookExecutor {
 
-    private String job;
+    private String project;
 
     private List<String> parameters;
 
     private Map<String, String> parameterMap = new HashMap<>();
 
-    public BuildExecutor(WebhookRequest req, StaplerResponse rsp, String job, List<String> parameters) {
+    public BuildExecutor(WebhookRequest req, StaplerResponse rsp, String project, List<String> parameters) {
         super(req, rsp, "build");
-        this.job = job;
+        this.project = project;
         this.parameters = parameters;
 
         parseParameters();
@@ -44,22 +44,22 @@ public class BuildExecutor extends WebhookExecutor {
      */
     @Override
     public void execute() {
-        TopLevelItem item = Jenkins.getInstance().getItemMap().get(job);
+        TopLevelItem item = Jenkins.getInstance().getItemMap().get(project);
         if (item == null || !(item instanceof AbstractProject)) {
-            outputError(new ResponseParameter("Project [ " + job + " ] is not found"));
+            outputError(new ResponseParameter("Project [ " + project + " ] is not found"));
             return;
         }
         AbstractProject project = ((AbstractProject) item);
 
         if (!project.hasPermission(Item.BUILD)) {
             String name = Jenkins.getAuthentication().getName();
-            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", job, name)));
+            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", this.project, name)));
             return;
         }
 
         Jenkins.getInstance().getQueue().schedule(project, project.getQuietPeriod(), getParametersAction(project), getCauseAction());
 
-        ResponseParameter responseParameter = new ResponseParameter("Project [ " + job + " ] has been scheduled");
+        ResponseParameter responseParameter = new ResponseParameter("Project [ " + this.project + " ] has been scheduled");
         responseParameter.setProject(project);
         output(responseParameter);
     }

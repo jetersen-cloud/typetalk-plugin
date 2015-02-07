@@ -23,7 +23,7 @@ class WebhookExecutorFactorySpec extends Specification {
 
         then:
         executor.class == BuildExecutor
-        executor.job == "typetalk-plugin"
+        executor.project == "typetalk-plugin"
         executor.parameters == parameters
 
         where:

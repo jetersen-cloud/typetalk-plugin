@@ -13,7 +13,7 @@ import java.util.LinkedList;
 public class WebhookExecutorFactory {
     public static WebhookExecutor create(WebhookRequest req, StaplerResponse rsp) {
         LinkedList<String> parameters = new LinkedList<>(Arrays.asList(req.getPostMessage().split("\\s+")));
-        String botUser = parameters.poll(); // not used
+        String botUser = parameters.poll();
         String command = parameters.poll();
 
         // default command is 'help'
@@ -23,13 +23,13 @@ public class WebhookExecutorFactory {
 
         switch (command) {
             case "build":
-                String job = parameters.poll();
-                if (StringUtils.isBlank(job)) {
-                    // show help if job is not specified
+                String project = parameters.poll();
+                if (StringUtils.isBlank(project)) {
+                    // show help if project is not specified
                     return HelpExecutor.createBuildHelpExecutor(req, rsp, botUser);
                 }
 
-                return new BuildExecutor(req, rsp, job, parameters);
+                return new BuildExecutor(req, rsp, project, parameters);
             case "list":
                 String pattern = parameters.poll();
                 return new ListExecutor(req, rsp, pattern);
