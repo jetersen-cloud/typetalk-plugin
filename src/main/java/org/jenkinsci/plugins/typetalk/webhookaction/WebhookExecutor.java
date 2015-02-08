@@ -38,7 +38,7 @@ public abstract class WebhookExecutor {
         try {
             logger.log(level, parameter.getDescription());
 
-            rsp.setContentType("application/json");
+            rsp.setContentType("application/json; charset=utf-8");
             rsp.setStatus(HttpServletResponse.SC_OK);
             rsp.getWriter().println(buildResponseMessage(parameter));
         } catch (IOException e) {

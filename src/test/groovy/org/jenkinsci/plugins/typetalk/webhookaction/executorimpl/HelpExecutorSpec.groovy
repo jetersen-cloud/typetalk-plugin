@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl
 
+import hudson.model.ParametersDefinitionProperty
+import hudson.model.StringParameterDefinition
 import jenkins.model.JenkinsLocationConfiguration
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest
@@ -60,6 +62,72 @@ class HelpExecutorSpec extends Specification {
         writer.toString().contains("build helloWorldProject version=1.0.0 env=stage")
     }
 
+    def "execute : parameters [build project] - no parameter"() {
+        setup:
+        setUpRootUrl()
+        setUpProject([])
+        executor = new HelpExecutor(req, res, "@jenkins+", ["build", "typetalk-plugin"] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("build typetalk-plugin")
+        writer.toString().contains("http://localhost:8080/job/typetalk-plugin")
+    }
+
+    def "execute : parameters [build project] - single parameter"() {
+        setup:
+        setUpRootUrl()
+        setUpProject([
+            new StringParameterDefinition("version", null, "version description"),
+        ])
+        executor = new HelpExecutor(req, res, "@jenkins+", ["build", "typetalk-plugin"] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("build typetalk-plugin <value>")
+        writer.toString().contains("version : version description")
+        writer.toString().contains("http://localhost:8080/job/typetalk-plugin")
+    }
+
+    def "execute : parameters [build project] - multiple parameters"() {
+        setup:
+        setUpRootUrl()
+        setUpProject([
+            new StringParameterDefinition("version", null, "version description"),
+            new StringParameterDefinition("env", null, "env description")
+        ])
+        executor = new HelpExecutor(req, res, "@jenkins+", ["build", "typetalk-plugin"] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("build typetalk-plugin <key=value>")
+        writer.toString().contains("version : version description")
+        writer.toString().contains("env : env description")
+        writer.toString().contains("http://localhost:8080/job/typetalk-plugin")
+    }
+
+    def "execute : parameters [build project] - not found"() {
+        setup:
+        setUpRootUrl()
+        executor = new HelpExecutor(req, res, "@jenkins+", ["build", "typetalk-plugin"] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("not found")
+    }
+
     def "execute : parameters [list]"() {
         setup:
         setUpRootUrl()
@@ -78,6 +146,11 @@ class HelpExecutorSpec extends Specification {
 
     def setUpRootUrl() {
         JenkinsLocationConfiguration.get().url = "http://localhost:8080/"
+    }
+
+    def setUpProject(spds) {
+        def project = j.createFreeStyleProject("typetalk-plugin")
+        project.addProperty(new ParametersDefinitionProperty(spds))
     }
 
 }

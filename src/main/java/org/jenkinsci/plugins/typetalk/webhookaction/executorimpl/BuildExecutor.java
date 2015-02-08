@@ -44,7 +44,7 @@ public class BuildExecutor extends WebhookExecutor {
      */
     @Override
     public void execute() {
-        TopLevelItem item = Jenkins.getInstance().getItemMap().get(project);
+        TopLevelItem item = Jenkins.getInstance().getItem(project);
         if (item == null || !(item instanceof AbstractProject)) {
             outputError(new ResponseParameter("Project [ " + project + " ] is not found"));
             return;

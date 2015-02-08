@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
+import hudson.model.*;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
 import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
@@ -30,30 +32,39 @@ public class HelpExecutor extends WebhookExecutor {
 
     @Override
     public void execute() {
-        ResponseParameter responseParameter = new ResponseParameter(ResponseParameter.flatMessages(getMessages()));
+        ResponseParameter responseParameter = createResponseParameter();
+        if (responseParameter == null) {
+            return;
+        }
+
         responseParameter.setDescription("Command [ help ] is executed");
         responseParameter.setEmoji(TypetalkMessage.Emoji.BOOK);
 
         output(responseParameter);
     }
 
-    private List<String> getMessages() {
+    private ResponseParameter createResponseParameter() {
         String command = parameters.poll();
         if (StringUtils.isBlank(command)) {
-            return getDefaultMessages();
+            return getDefaultResponseParameter();
         }
 
         switch (command) {
             case "build":
-                return getBuildMessages();
+                String project = parameters.poll();
+                if (StringUtils.isBlank(project)) {
+                    return getBuildResponseParameter();
+                } else {
+                    return getProjectBuildResponseParameter(project);
+                }
             case "list":
-                return getListMessages();
+                return getListResponseParameter();
             default:
-                return getDefaultMessages();
+                return getDefaultResponseParameter();
         }
     }
 
-    private List<String> getDefaultMessages() {
+    private ResponseParameter getDefaultResponseParameter() {
         List<String> messages = new ArrayList<>();
         messages.add("Usage");
         messages.add("```");
@@ -62,10 +73,10 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add(botUser + " help (<sub command>)");
         messages.add("```");
 
-        return messages;
+        return new ResponseParameter(ResponseParameter.flatMessages(messages));
     }
 
-    private List<String> getBuildMessages() {
+    private ResponseParameter getBuildResponseParameter() {
         List<String> messages = new ArrayList<>();
         messages.add("Usage");
         messages.add("```");
@@ -79,10 +90,58 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add(botUser + " build helloWorldProject version=1.0.0 env=stage | build with multiple parameters");
         messages.add("```");
 
-        return messages;
+        return new ResponseParameter(ResponseParameter.flatMessages(messages));
     }
 
-    private List<String> getListMessages() {
+    private ResponseParameter getProjectBuildResponseParameter(String p) {
+        TopLevelItem item = Jenkins.getInstance().getItem(p);
+        if (item == null || !(item instanceof AbstractProject)) {
+            outputError(new ResponseParameter("Project [ " + p + " ] is not found"));
+            return null;
+        }
+        AbstractProject project = ((AbstractProject) item);
+        ParametersDefinitionProperty property = (ParametersDefinitionProperty) project.getProperty(ParametersDefinitionProperty.class);
+
+        // usage
+        List<String> messages = new ArrayList<>();
+        messages.add("Usage");
+        messages.add("```");
+        String option;
+        if (property == null) {
+            option = "";
+        } else if (property.getParameterDefinitions().size() == 1) {
+            option = " <value>";
+        } else {
+            option = " <key=value>";
+        }
+        messages.add(botUser + " build " + p + option);
+        messages.add("```");
+
+        // parameter ( if defined )
+        if (property != null) {
+            messages.add(TypetalkMessage.Emoji.BOOK.getSymbol() + " Parameters");
+            messages.add("```");
+
+            int maxParameterLength = 0;
+            for (ParameterDefinition pd : property.getParameterDefinitions()) {
+                maxParameterLength = Math.max(maxParameterLength, pd.getName().length());
+            }
+            String format = "%" + maxParameterLength + "s : %s";
+            for (ParameterDefinition pd : property.getParameterDefinitions()) {
+                String description = StringUtils.isNotBlank(pd.getDescription()) ? pd.getDescription() : "(no description)";
+                messages.add(String.format(format, pd.getName(), description));
+            }
+
+            messages.add("```");
+        }
+
+        ResponseParameter responseParameter = new ResponseParameter(ResponseParameter.flatMessages(messages));
+        responseParameter.setProject(project);
+
+        return responseParameter;
+    }
+
+    private ResponseParameter getListResponseParameter() {
         List<String> messages = new ArrayList<>();
         messages.add("Usage");
         messages.add("```");
@@ -95,7 +154,7 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add(botUser + " list hel....rld | list projects with regexp filter");
         messages.add("```");
 
-        return messages;
+        return new ResponseParameter(ResponseParameter.flatMessages(messages));
     }
 
 }
