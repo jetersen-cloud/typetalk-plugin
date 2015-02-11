@@ -7,7 +7,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class TypetalkMessage {
 
-    private final Emoji emoji;
+	public static final String CODE_SEPARATOR = "```";
+
+	private final Emoji emoji;
 	private final String message;
 
 	public Emoji getEmoji() {

@@ -33,6 +33,10 @@ public class ResponseParameter {
         this.emoji = emoji;
     }
 
+    public boolean isEmojiSet() {
+        return emoji != null;
+    }
+
     private AbstractProject project;
 
     public AbstractProject getProject() {
