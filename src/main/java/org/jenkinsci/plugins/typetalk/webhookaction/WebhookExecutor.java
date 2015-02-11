@@ -18,6 +18,10 @@ public abstract class WebhookExecutor {
     protected StaplerResponse rsp;
     protected String command;
 
+    protected WebhookExecutor(WebhookRequest req, StaplerResponse rsp) {
+        this(req, rsp, null);
+    }
+
     protected WebhookExecutor(WebhookRequest req, StaplerResponse rsp, String command) {
         this.req = req;
         this.rsp = rsp;

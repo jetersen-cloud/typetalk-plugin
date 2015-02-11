@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl
 
+import hudson.model.AbstractProject
 import hudson.model.ParametersDefinitionProperty
 import hudson.model.StringParameterDefinition
 import jenkins.model.JenkinsLocationConfiguration
@@ -19,6 +20,8 @@ class HelpExecutorSpec extends Specification {
 
     def req = Mock(WebhookRequest)
     def res = Mock(StaplerResponse)
+
+    AbstractProject project
 
     WebhookExecutor executor
     def writer = new StringWriter()
@@ -128,6 +131,25 @@ class HelpExecutorSpec extends Specification {
         writer.toString().contains("not found")
     }
 
+    def "execute : parameters [build project] - with query string"() {
+        setup:
+        setUpRootUrl()
+        setUpProject([
+            new StringParameterDefinition("version", null, "version description"),
+        ])
+        setUpProjectWithQuerystring()
+        executor = new HelpExecutor(req, res, "@jenkins+", [] as LinkedList)
+
+        when:
+        executor.execute()
+
+        then:
+        1 * res.setStatus(HttpServletResponse.SC_OK)
+        writer.toString().contains("build <value>")
+        writer.toString().contains("version : version description")
+        writer.toString().contains("http://localhost:8080/job/typetalk-plugin")
+    }
+
     def "execute : parameters [list]"() {
         setup:
         setUpRootUrl()
@@ -149,8 +171,12 @@ class HelpExecutorSpec extends Specification {
     }
 
     def setUpProject(spds) {
-        def project = j.createFreeStyleProject("typetalk-plugin")
+        project = j.createFreeStyleProject("typetalk-plugin")
         project.addProperty(new ParametersDefinitionProperty(spds))
+    }
+
+    def setUpProjectWithQuerystring() {
+        req.project >> project
     }
 
 }

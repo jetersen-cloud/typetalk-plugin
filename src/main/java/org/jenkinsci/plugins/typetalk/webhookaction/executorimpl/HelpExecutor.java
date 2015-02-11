@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.support.Emoji;
 import org.jenkinsci.plugins.typetalk.support.ResultSupport;
 import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.webhookaction.NoSuchProjectException;
 import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
@@ -37,37 +38,41 @@ public class HelpExecutor extends WebhookExecutor {
 
     @Override
     public void execute() {
-        ResponseParameter responseParameter = createResponseParameter();
-        if (responseParameter == null) {
-            return;
-        }
+        try {
+            ResponseParameter responseParameter = createResponseParameter();
+            responseParameter.setDescription("Command [ help ] is executed");
+            if (!responseParameter.isEmojiSet()) {
+                responseParameter.setEmoji(Emoji.BOOK);
+            }
 
-        responseParameter.setDescription("Command [ help ] is executed");
-        if (!responseParameter.isEmojiSet()) {
-            responseParameter.setEmoji(Emoji.BOOK);
+            output(responseParameter);
+        } catch (NoSuchProjectException e) {
+            outputError(new ResponseParameter("Project [ " + e.getProject() + " ] is not found"));
         }
-
-        output(responseParameter);
     }
 
     private ResponseParameter createResponseParameter() {
-        String command = parameters.poll();
-        if (StringUtils.isBlank(command)) {
-            return getDefaultResponseParameter();
-        }
-
-        switch (command) {
-            case "build":
-                String project = parameters.poll();
-                if (StringUtils.isBlank(project)) {
-                    return getBuildResponseParameter();
-                } else {
-                    return getProjectBuildResponseParameter(project);
-                }
-            case "list":
-                return getListResponseParameter();
-            default:
+        if (req.getProject() == null) {
+            String command = parameters.poll();
+            if (StringUtils.isBlank(command)) {
                 return getDefaultResponseParameter();
+            }
+
+            switch (command) {
+                case "build":
+                    String project = parameters.poll();
+                    if (StringUtils.isBlank(project)) {
+                        return getBuildResponseParameter();
+                    } else {
+                        return getProjectBuildResponseParameter(project, false);
+                    }
+                case "list":
+                    return getListResponseParameter();
+                default:
+                    return getDefaultResponseParameter();
+            }
+        } else {
+            return getProjectBuildResponseParameter(req.getProject().getName(), true);
         }
     }
 
@@ -100,11 +105,10 @@ public class HelpExecutor extends WebhookExecutor {
         return new ResponseParameter(ResponseParameter.flatMessages(messages));
     }
 
-    private ResponseParameter getProjectBuildResponseParameter(String p) {
+    private ResponseParameter getProjectBuildResponseParameter(String p, boolean specifiedProjectWithQueryString) {
         TopLevelItem item = Jenkins.getInstance().getItem(p);
-        if (item == null || !(item instanceof AbstractProject)) {
-            outputError(new ResponseParameter("Project [ " + p + " ] is not found"));
-            return null;
+        if (!(item instanceof AbstractProject)) {
+            throw new NoSuchProjectException(p);
         }
         AbstractProject project = ((AbstractProject) item);
         ParametersDefinitionProperty property = (ParametersDefinitionProperty) project.getProperty(ParametersDefinitionProperty.class);
@@ -123,6 +127,12 @@ public class HelpExecutor extends WebhookExecutor {
         // usage
         messages.add(Emoji.BOOK.getSymbol() + " Usage");
         messages.add(TypetalkMessage.CODE_SEPARATOR);
+        String specifiedProject;
+        if (specifiedProjectWithQueryString) {
+            specifiedProject = "";
+        } else {
+            specifiedProject = " " + p;
+        }
         String option;
         if (property == null) {
             option = "";
@@ -131,7 +141,7 @@ public class HelpExecutor extends WebhookExecutor {
         } else {
             option = " <key=value>";
         }
-        messages.add(botUser + " build " + p + option);
+        messages.add(botUser + " build" + specifiedProject + option);
         messages.add(TypetalkMessage.CODE_SEPARATOR);
 
         // parameter ( if defined )

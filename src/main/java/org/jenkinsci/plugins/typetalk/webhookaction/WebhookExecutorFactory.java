@@ -1,42 +1,56 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.BuildExecutor;
-import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.HelpExecutor;
-import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.ListExecutor;
-import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.UndefinedExecutor;
+import org.jenkinsci.plugins.typetalk.webhookaction.executorimpl.*;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
 public class WebhookExecutorFactory {
-    public static WebhookExecutor create(WebhookRequest req, StaplerResponse rsp) {
-        LinkedList<String> parameters = new LinkedList<>(Arrays.asList(req.getPostMessage().split("\\s+")));
+
+    public static WebhookExecutor create(StaplerRequest req, StaplerResponse rsp) {
+        WebhookRequest webhookRequest = new WebhookRequest(req);
+        webhookRequest.parseBodyToJson();
+        try {
+            webhookRequest.parseQueryStringToProject();
+        } catch (NoSuchProjectException e) {
+            // when a project specified with query string is not found
+            return new NoSuchProjectExecutor(webhookRequest, rsp, e.getProject());
+        }
+
+        LinkedList<String> parameters = new LinkedList<>(Arrays.asList(webhookRequest.getPostMessage().split("\\s+")));
         String botUser = parameters.poll();
         String command = parameters.poll();
 
         // default command is 'help'
         if (StringUtils.isBlank(command)) {
-            return new HelpExecutor(req, rsp, botUser, parameters);
+            return new HelpExecutor(webhookRequest, rsp, botUser, parameters);
         }
 
         switch (command) {
             case "build":
-                String project = parameters.poll();
+                String project;
+                if (webhookRequest.getProject() == null) {
+                    project = parameters.poll();
+                } else {
+                    project = webhookRequest.getProject().getName();
+                }
                 if (StringUtils.isBlank(project)) {
                     // show help if project is not specified
-                    return HelpExecutor.createBuildHelpExecutor(req, rsp, botUser);
+                    return HelpExecutor.createBuildHelpExecutor(webhookRequest, rsp, botUser);
                 }
 
-                return new BuildExecutor(req, rsp, project, parameters);
+                return new BuildExecutor(webhookRequest, rsp, project, parameters);
             case "list":
                 String pattern = parameters.poll();
-                return new ListExecutor(req, rsp, pattern);
+                return new ListExecutor(webhookRequest, rsp, pattern);
             case "help":
-                return new HelpExecutor(req, rsp, botUser, parameters);
+                return new HelpExecutor(webhookRequest, rsp, botUser, parameters);
             default:
-                return new UndefinedExecutor(req, rsp, command);
+                return new UndefinedExecutor(webhookRequest, rsp, command);
         }
     }
+
 }

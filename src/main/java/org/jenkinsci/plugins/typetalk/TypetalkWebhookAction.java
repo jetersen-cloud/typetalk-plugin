@@ -38,7 +38,7 @@ public class TypetalkWebhookAction implements RootAction {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
                     throws IOException, ServletException {
-                WebhookExecutor executor = WebhookExecutorFactory.create(new WebhookRequest(req), rsp);
+                WebhookExecutor executor = WebhookExecutorFactory.create(req, rsp);
                 executor.execute();
             }
         };
