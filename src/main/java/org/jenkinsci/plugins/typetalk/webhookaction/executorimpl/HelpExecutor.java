@@ -1,9 +1,12 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
-import hudson.model.*;
+import hudson.model.AbstractProject;
+import hudson.model.ParameterDefinition;
+import hudson.model.ParametersDefinitionProperty;
+import hudson.model.TopLevelItem;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.support.Emoji;
 import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
@@ -38,7 +41,7 @@ public class HelpExecutor extends WebhookExecutor {
         }
 
         responseParameter.setDescription("Command [ help ] is executed");
-        responseParameter.setEmoji(TypetalkMessage.Emoji.BOOK);
+        responseParameter.setEmoji(Emoji.BOOK);
 
         output(responseParameter);
     }
@@ -82,7 +85,7 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add("```");
         messages.add(botUser + " build <project> (<key=value>)");
         messages.add("```");
-        messages.add(TypetalkMessage.Emoji.BOOK.getSymbol() + " Sample");
+        messages.add(Emoji.BOOK.getSymbol() + " Sample");
         messages.add("```");
         messages.add(botUser + " build helloWorldProject                         | build without parameters");
         messages.add(botUser + " build helloWorldProject 1.0.0                   | build with only single parameter");
@@ -119,7 +122,7 @@ public class HelpExecutor extends WebhookExecutor {
 
         // parameter ( if defined )
         if (property != null) {
-            messages.add(TypetalkMessage.Emoji.BOOK.getSymbol() + " Parameters");
+            messages.add(Emoji.BOOK.getSymbol() + " Parameters");
             messages.add("```");
 
             int maxParameterLength = 0;
@@ -147,7 +150,7 @@ public class HelpExecutor extends WebhookExecutor {
         messages.add("```");
         messages.add(botUser + " list (<regexp filter>)");
         messages.add("```");
-        messages.add(TypetalkMessage.Emoji.BOOK.getSymbol() + " Sample");
+        messages.add(Emoji.BOOK.getSymbol() + " Sample");
         messages.add("```");
         messages.add(botUser + " list            | list all projects ");
         messages.add(botUser + " list helloWorld | list projects with simple filter");

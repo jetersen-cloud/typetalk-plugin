@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
 import hudson.model.AbstractProject;
-import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.support.Emoji;
 
 import java.util.List;
 
@@ -23,13 +23,13 @@ public class ResponseParameter {
         return message;
     }
 
-    private TypetalkMessage.Emoji emoji;
+    private Emoji emoji;
 
-    public TypetalkMessage.Emoji getEmoji() {
-        return emoji != null ? emoji : TypetalkMessage.Emoji.SMILEY;
+    public Emoji getEmoji() {
+        return emoji != null ? emoji : Emoji.SMILEY;
     }
 
-    public void setEmoji(TypetalkMessage.Emoji emoji) {
+    public void setEmoji(Emoji emoji) {
         this.emoji = emoji;
     }
 

@@ -10,7 +10,8 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.support.Emoji;
+import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
@@ -41,8 +42,8 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 			String message;
 			if (StringUtils.isBlank(notifyStartMessage)) {
-				TypetalkMessage typetalkMessage = new TypetalkMessage(TypetalkMessage.Emoji.LOUDSPEAKER, "Build start");
-				message = typetalkMessage.messageWithBuildInfo(build);
+				TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.LOUDSPEAKER, "Build start");
+				message = typetalkMessage.buildMessageWithBuild(build);
 			} else{
 				message = build.getEnvironment(listener).expand(notifyStartMessage);
 			}
@@ -59,8 +60,8 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 					String message;
 					if (StringUtils.isBlank(notifyEndMessage)) {
-						TypetalkMessage typetalkMessage = new TypetalkMessage(TypetalkMessage.Emoji.MEGA, "Build end");
-						message = typetalkMessage.messageWithBuildInfo(build);
+						TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.MEGA, "Build end");
+						message = typetalkMessage.buildMessageWithBuild(build);
 					} else {
 						message = build.getEnvironment(listener).expand(notifyEndMessage);
 					}

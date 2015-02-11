@@ -1,7 +1,8 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.support.Emoji;
+import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +31,7 @@ public abstract class WebhookExecutor {
     }
 
     protected void outputError(ResponseParameter parameter) {
-        parameter.setEmoji(TypetalkMessage.Emoji.CRY);
+        parameter.setEmoji(Emoji.CRY);
         outputInternal(Level.WARNING, parameter);
     }
 
@@ -50,7 +51,7 @@ public abstract class WebhookExecutor {
         JSONObject jsonObject = new JSONObject();
 
         TypetalkMessage typetalkMessage = new TypetalkMessage(parameter.getEmoji(), parameter.getMessage());
-        jsonObject.element("message", typetalkMessage.messageWithProjectInfo(parameter.getProject()));
+        jsonObject.element("message", typetalkMessage.buildMessageWithProject(parameter.getProject()));
         jsonObject.element("replyTo", req.getPostId());
 
         return jsonObject.toString();

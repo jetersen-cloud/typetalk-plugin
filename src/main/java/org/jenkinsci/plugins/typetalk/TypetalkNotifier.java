@@ -13,7 +13,8 @@ import hudson.tasks.Publisher;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.api.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.support.ResultSupport;
+import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -47,8 +48,8 @@ public class TypetalkNotifier extends Notifier {
 
 		listener.getLogger().println("Notifying build result to Typetalk...");
 
-		TypetalkMessage typetalkMessage = TypetalkMessage.convertFromResult(build);
-		String message = typetalkMessage.messageWithBuildInfo(build);
+		TypetalkMessage typetalkMessage = new ResultSupport().convertBuildToMessage(build);
+		String message = typetalkMessage.buildMessageWithBuild(build);
 		Long topicId = Long.valueOf(topicNumber);
 
 		Typetalk.createFromName(name).postMessage(topicId, message);
