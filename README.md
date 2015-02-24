@@ -20,7 +20,7 @@ gradle clean jpi
 
 If you don't install gradle, you can use gradlew / gradlew.bat instead of gradle.
 
-# Restriction
+## Restriction
 
 Now you cannot build this plugin with JDK8.
 You may be able to build it with JDK8 after updating "Gradle JPI Plugin".
