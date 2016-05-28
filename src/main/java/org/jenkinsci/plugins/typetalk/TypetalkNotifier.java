@@ -28,7 +28,7 @@ public class TypetalkNotifier extends Notifier {
 	public final String topicNumber;
 
 	@DataBoundConstructor
-	public TypetalkNotifier(String name, String topicNumber, boolean notifyWhenSuccess) {
+	public TypetalkNotifier(String name, String topicNumber) {
 		this.name = name;
 		this.topicNumber = topicNumber;
 	}
