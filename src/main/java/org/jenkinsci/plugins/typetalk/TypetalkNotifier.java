@@ -5,7 +5,6 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
@@ -42,28 +41,20 @@ public class TypetalkNotifier extends Notifier {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
 
-		if (successFromPreviousBuild(build)) {
+		ResultSupport resultSupport = new ResultSupport();
+		if (resultSupport.successFromPreviousBuild(build)) {
 			return true;
 		}
 
 		listener.getLogger().println("Notifying build result to Typetalk...");
 
-		TypetalkMessage typetalkMessage = new ResultSupport().convertBuildToMessage(build);
+		TypetalkMessage typetalkMessage = resultSupport.convertBuildToMessage(build);
 		String message = typetalkMessage.buildMessageWithBuild(build);
 		Long topicId = Long.valueOf(topicNumber);
 
 		Typetalk.createFromName(name).postMessage(topicId, message);
 
 		return true;
-	}
-
-	private boolean successFromPreviousBuild(AbstractBuild<?, ?> build) {
-		if (build.getPreviousBuild() == null) {
-			return build.getResult().equals(Result.SUCCESS);
-		} else {
-			return build.getResult().equals(Result.SUCCESS)
-				&& build.getPreviousBuild().getResult().equals(Result.SUCCESS);
-		}
 	}
 
 	@Override
