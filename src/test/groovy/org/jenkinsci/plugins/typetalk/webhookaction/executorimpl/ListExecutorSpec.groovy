@@ -67,7 +67,7 @@ class ListExecutorSpec extends Specification {
     }
 
     def countResultProjects() {
-        writer.toString().count(":astonished:")
+        writer.toString().count(":mask:")
     }
 
 }
