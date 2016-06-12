@@ -11,9 +11,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.support.ResultSupport;
-import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -40,20 +38,7 @@ public class TypetalkNotifier extends Notifier {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
-
-		ResultSupport resultSupport = new ResultSupport();
-		if (resultSupport.successFromPreviousBuild(build)) {
-			return true;
-		}
-
-		listener.getLogger().println("Notifying build result to Typetalk...");
-
-		TypetalkMessage typetalkMessage = resultSupport.convertBuildToMessage(build);
-		String message = typetalkMessage.buildMessageWithBuild(build);
-		Long topicId = Long.valueOf(topicNumber);
-
-		Typetalk.createFromName(name).postMessage(topicId, message);
-
+		new NotifyDelegate(name, Long.valueOf(topicNumber), listener, build).notifyResult();
 		return true;
 	}
 

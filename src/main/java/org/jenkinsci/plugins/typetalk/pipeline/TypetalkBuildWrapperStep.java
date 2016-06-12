@@ -1,14 +1,10 @@
-package org.jenkinsci.plugins.typetalk;
+package org.jenkinsci.plugins.typetalk.pipeline;
 
 
 import hudson.Extension;
-import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.support.Emoji;
-import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.delegate.BuildWrapperDelegate;
 import org.jenkinsci.plugins.workflow.steps.*;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -17,8 +13,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public class TypetalkBuildWrapperStep extends AbstractStepImpl {
-
-//    TODO move workflow package
 
     private final @Nonnull String name;
     private final @Nonnull Long topicId;
@@ -118,24 +112,15 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
 
         @Override
         public boolean start() throws Exception {
-            if (step.notifyStart) {
-                listener.getLogger().println("Notifying build start to Typetalk...");
+            BuildWrapperDelegate delegate = new BuildWrapperDelegate(step.name, step.topicId, listener, run);
 
-                String message;
-                if (StringUtils.isBlank(step.notifyStartMessage)) {
-                    TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.LOUDSPEAKER, "Build start");
-                    message = typetalkMessage.buildMessageWithBuild(run);
-                } else {
-                    message = run.getEnvironment(listener).expand(step.notifyStartMessage);
+            delegate.notifyStart(step.notifyStart, step.notifyStartMessage);
+            getContext().newBodyInvoker().withCallback(new BodyExecutionCallback.TailCall() {
+                @Override
+                protected void finished(StepContext context) throws Exception {
+                    delegate.notifyEnd(step.notifyEnd, step.notifyEndMessage);
                 }
-
-                Typetalk.createFromName(step.name).postMessage(step.topicId, message);
-            }
-
-            getContext().
-                    newBodyInvoker().
-                    withCallback(new TypetalkBuildWrapperStepCallback(step, listener, run)).
-                    start();
+            }).start();
 
             return false;
         }
@@ -144,44 +129,6 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
         public void stop(@Nonnull Throwable throwable) throws Exception {
             // Do nothing
         }
-    }
-
-    private static class TypetalkBuildWrapperStepCallback extends BodyExecutionCallback.TailCall {
-
-        private final TypetalkBuildWrapperStep step;
-
-        private final TaskListener listener;
-
-        private final Run run;
-
-        TypetalkBuildWrapperStepCallback(TypetalkBuildWrapperStep step, TaskListener listener, Run run) {
-            this.step = step;
-            this.listener = listener;
-            this.run = run;
-        }
-
-        @Override
-        protected void finished(StepContext context) throws Exception {
-            if (step.notifyEnd && isSuccessBuild(run)) {
-                listener.getLogger().println("Notifying build end to Typetalk...");
-
-                String message;
-                if (StringUtils.isBlank(step.notifyEndMessage)) {
-                    TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.MEGA, "Build end");
-                    message = typetalkMessage.buildMessageWithBuild(run);
-                } else {
-                    message = run.getEnvironment(listener).expand(step.notifyEndMessage);
-                }
-
-                Typetalk.createFromName(step.name).postMessage(step.topicId, message);
-            }
-        }
-
-        private boolean isSuccessBuild(Run run) {
-            // When there is nothing failure (equals success), getResult hasn't been set yet.
-            return run.getResult() == null || run.getResult().equals(Result.SUCCESS);
-        }
-
     }
 
 }

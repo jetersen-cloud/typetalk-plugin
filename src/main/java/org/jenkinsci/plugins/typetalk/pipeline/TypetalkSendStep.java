@@ -1,14 +1,9 @@
-package org.jenkinsci.plugins.typetalk;
+package org.jenkinsci.plugins.typetalk.pipeline;
 
 import hudson.Extension;
-import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.support.ResultSupport;
-import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
@@ -70,23 +65,9 @@ public class TypetalkSendStep extends AbstractStepImpl {
         @StepContextParameter
         transient Run run;
 
-        /**
-         * Almost same as {@link TypetalkNotifier#perform(AbstractBuild, Launcher, BuildListener)}
-         */
         @Override
         protected Void run() throws Exception {
-            ResultSupport resultSupport = new ResultSupport();
-            if (resultSupport.successFromPreviousBuild(run)) {
-                return null;
-            }
-
-            listener.getLogger().println("Notifying build result to Typetalk...");
-
-            TypetalkMessage typetalkMessage = new ResultSupport().convertBuildToMessage(run);
-            String message = typetalkMessage.buildMessageWithBuild(run);
-
-            Typetalk.createFromName(step.name).postMessage(step.topicId, message);
-
+            new NotifyDelegate(step.name, step.topicId, listener, run).notifyResult();
             return null;
         }
 
