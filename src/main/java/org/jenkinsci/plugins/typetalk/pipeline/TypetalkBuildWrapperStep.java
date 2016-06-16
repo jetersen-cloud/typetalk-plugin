@@ -112,22 +112,55 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
 
         @Override
         public boolean start() throws Exception {
-            BuildWrapperDelegate delegate = new BuildWrapperDelegate(step.name, step.topicId, listener, run);
-
-            delegate.notifyStart(step.notifyStart, step.notifyStartMessage);
-            getContext().newBodyInvoker().withCallback(new BodyExecutionCallback.TailCall() {
-                @Override
-                protected void finished(StepContext context) throws Exception {
-                    delegate.notifyEnd(step.notifyEnd, step.notifyEndMessage);
-                }
-            }).start();
-
+            getContext().newBodyInvoker().withCallback(new Callback(step, listener, run)).start();
             return false;
         }
 
         @Override
         public void stop(@Nonnull Throwable throwable) throws Exception {
             // Do nothing
+        }
+    }
+
+    public static class Callback extends BodyExecutionCallback {
+
+        private static final long serialVersionUID = 1L;
+
+        private transient final TypetalkBuildWrapperStep step;
+
+        private transient final BuildWrapperDelegate delegate;
+
+        Callback(TypetalkBuildWrapperStep step, TaskListener listener, Run run) {
+            this.step = step;
+            delegate = new BuildWrapperDelegate(step.name, step.topicId, listener, run);
+        }
+
+        @Override
+        public void onStart(StepContext context) {
+            try {
+                delegate.notifyStart(step.notifyStart, step.notifyStartMessage);
+            } catch (Exception x) {
+                context.onFailure(x);
+            }
+        }
+
+        @Override
+        public void onSuccess(StepContext context, Object result) {
+            try {
+                delegate.notifyEnd(step.notifyEnd, step.notifyEndMessage);
+                context.onSuccess(result);
+            } catch (Exception x) {
+                context.onFailure(x);
+            }
+        }
+
+        @Override
+        public void onFailure(StepContext context, Throwable t) {
+            try {
+                context.onFailure(t);
+            } catch (Exception x) {
+                context.onFailure(x);
+            }
         }
     }
 

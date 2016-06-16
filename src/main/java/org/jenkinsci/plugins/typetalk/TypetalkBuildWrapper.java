@@ -33,7 +33,7 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 	@Override
 	public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-		BuildWrapperDelegate delegate = new BuildWrapperDelegate(name, Long.valueOf(topicNumber), listener, build);
+		final BuildWrapperDelegate delegate = new BuildWrapperDelegate(name, Long.valueOf(topicNumber), listener, build);
 		delegate.notifyStart(notifyStart, notifyStartMessage);
 
 		return new Environment() {
