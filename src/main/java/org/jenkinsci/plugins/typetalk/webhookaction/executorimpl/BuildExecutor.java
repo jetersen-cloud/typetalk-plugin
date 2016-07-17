@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
 import hudson.model.*;
 import jenkins.model.Jenkins;
+import jenkins.model.ParameterizedJobMixIn;
 import org.jenkinsci.plugins.typetalk.webhookaction.ResponseParameter;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor;
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest;
@@ -45,11 +46,11 @@ public class BuildExecutor extends WebhookExecutor {
     @Override
     public void execute() {
         TopLevelItem item = Jenkins.getInstance().getItem(project);
-        if (!(item instanceof AbstractProject)) {
+        if (!(item instanceof Job)) {
             outputError(new ResponseParameter("Project [ " + project + " ] is not found"));
             return;
         }
-        AbstractProject project = ((AbstractProject) item);
+        Job project = ((Job) item);
 
         if (!project.hasPermission(Item.BUILD)) {
             String name = Jenkins.getAuthentication().getName();
@@ -57,14 +58,21 @@ public class BuildExecutor extends WebhookExecutor {
             return;
         }
 
-        Jenkins.getInstance().getQueue().schedule(project, project.getQuietPeriod(), getParametersAction(project), getCauseAction());
+        if (!(project instanceof ParameterizedJobMixIn.ParameterizedJob)) {
+            String name = Jenkins.getAuthentication().getName();
+            outputError(new ResponseParameter(String.format("Project [ %s ] cannot be built by '%s'", this.project, name)));
+            return;
+        }
+        ParameterizedJobMixIn.ParameterizedJob job = ((ParameterizedJobMixIn.ParameterizedJob) project);
+
+        Jenkins.getInstance().getQueue().schedule(job, job.getQuietPeriod(), getParametersAction(project), getCauseAction());
 
         ResponseParameter responseParameter = new ResponseParameter("Project [ " + this.project + " ] has been scheduled");
         responseParameter.setProject(project);
         output(responseParameter);
     }
 
-    private Action getParametersAction(AbstractProject project) {
+    private Action getParametersAction(Job project) {
         ParametersDefinitionProperty property = (ParametersDefinitionProperty) project.getProperty(ParametersDefinitionProperty.class);
         if (property == null) {
             return null;

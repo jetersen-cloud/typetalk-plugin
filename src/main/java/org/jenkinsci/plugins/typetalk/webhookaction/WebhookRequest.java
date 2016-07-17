@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.TopLevelItem;
 import hudson.util.QueryParameterMap;
 import jenkins.model.Jenkins;
@@ -17,7 +17,8 @@ public class WebhookRequest {
 
     private JSONObject json;
 
-    private AbstractProject project;
+    // To be compatible, class and name are different
+    private Job project;
 
     public WebhookRequest(StaplerRequest req)  {
         this.req = req;
@@ -27,10 +28,10 @@ public class WebhookRequest {
         String p = new QueryParameterMap(req).get("project");
         if (StringUtils.isNotBlank(p)) {
             TopLevelItem item = Jenkins.getInstance().getItem(p);
-            if (!(item instanceof AbstractProject)) {
+            if (!(item instanceof Job)) {
                 throw new NoSuchProjectException(p);
             }
-            project = ((AbstractProject) item);
+            project = ((Job) item);
         }
     }
 
@@ -50,7 +51,7 @@ public class WebhookRequest {
         }
     }
 
-    public AbstractProject getProject() {
+    public Job getProject() {
         return project;
     }
 

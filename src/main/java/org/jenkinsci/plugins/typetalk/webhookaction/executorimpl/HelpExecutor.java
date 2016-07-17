@@ -1,9 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
-import hudson.model.AbstractProject;
-import hudson.model.ParameterDefinition;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.model.TopLevelItem;
+import hudson.model.*;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.support.Emoji;
@@ -107,10 +104,10 @@ public class HelpExecutor extends WebhookExecutor {
 
     private ResponseParameter getProjectBuildResponseParameter(String p, boolean specifiedProjectWithQueryString) {
         TopLevelItem item = Jenkins.getInstance().getItem(p);
-        if (!(item instanceof AbstractProject)) {
+        if (!(item instanceof Job)) {
             throw new NoSuchProjectException(p);
         }
-        AbstractProject project = ((AbstractProject) item);
+        Job project = ((Job) item);
         ParametersDefinitionProperty property = (ParametersDefinitionProperty) project.getProperty(ParametersDefinitionProperty.class);
 
         // description

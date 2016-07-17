@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.typetalk.support;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.Run;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +45,7 @@ public class TypetalkMessage {
 		return builder.toString();
 	}
 
-	public String buildMessageWithProject(AbstractProject project) {
+	public String buildMessageWithProject(Job project) {
 		final String rootUrl = Jenkins.getInstance().getRootUrl();
 		if (StringUtils.isEmpty(rootUrl)) {
 			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");

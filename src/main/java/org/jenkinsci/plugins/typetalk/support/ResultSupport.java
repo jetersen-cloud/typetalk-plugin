@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.typetalk.support;
 
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -49,7 +49,7 @@ public class ResultSupport {
         return build instanceof WorkflowRun && build.getResult() == null;
     }
 
-    public Emoji convertProjectToEmoji(AbstractProject project) {
+    public Emoji convertProjectToEmoji(Job project) {
         switch (project.getIconColor()) {
             case RED:
             case RED_ANIME:
