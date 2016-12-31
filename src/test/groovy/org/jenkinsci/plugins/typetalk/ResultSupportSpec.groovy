@@ -7,10 +7,10 @@ import org.jenkinsci.plugins.typetalk.support.ResultSupport
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class TypetalkMessageSpec extends Specification {
+class ResultSupportSpec extends Specification {
 
 	@Unroll
-	def convertFromResult() {
+	def "convertBuildToMessage : #previousResult to #result"() {
 		setup:
 		def build = makeMockBuild(result, previousResult)
 
@@ -49,4 +49,39 @@ class TypetalkMessageSpec extends Specification {
 
 		return build
 	}
+
+	def "convertBuildToMessage : previousBuildIsBuilding"() {
+		setup:
+		def build = makeMockBuild_previousBuildIsBuilding()
+
+		when:
+		def typetalkResult = new ResultSupport().convertBuildToMessage(build)
+
+		then:
+		true // NPE is not thrown
+		typetalkResult.emoji == Emoji.SMILEY
+		typetalkResult.message.contains('success')
+	}
+
+	def makeMockBuild_previousBuildIsBuilding() {
+		def build = Mock(AbstractBuild)
+
+		build.result >> Result.SUCCESS
+		build.previousBuild >> {
+			def previousBuild = Mock(AbstractBuild)
+
+			previousBuild.building >> true
+			previousBuild.previousBuild >> {
+				def morePreviousBuild = Mock(AbstractBuild)
+				morePreviousBuild.result >> Result.SUCCESS
+
+				return morePreviousBuild
+			}
+
+			return previousBuild
+		}
+
+		return build
+	}
+
 }

@@ -27,7 +27,7 @@ public class NotifyDelegate {
 
     public void notifyResult() throws IOException {
         ResultSupport resultSupport = new ResultSupport();
-        if (resultSupport.successFromPreviousBuild(run)) {
+        if (resultSupport.isSuccessFromSuccess(run)) {
             return;
         }
 

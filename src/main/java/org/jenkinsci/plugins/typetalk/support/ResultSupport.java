@@ -7,18 +7,9 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 public class ResultSupport {
 
-    public boolean successFromPreviousBuild(Run build) {
-        if (build.getPreviousBuild() == null) {
-            return (inProgressPipeline(build) || build.getResult().equals(Result.SUCCESS));
-        } else {
-            return (inProgressPipeline(build) || build.getResult().equals(Result.SUCCESS))
-                    && build.getPreviousBuild().getResult().equals(Result.SUCCESS);
-        }
-    }
-
     public TypetalkMessage convertBuildToMessage(Run build) {
-        if (inProgressPipeline(build) || build.getResult().equals(Result.SUCCESS)) {
-            if (recoverSuccess(build)) {
+        if (isSuccessCurrentBuild(build)) {
+            if (isSuccessFromFailure(build)) {
                 return new TypetalkMessage(Emoji.SMILEY, "Build recovery");
             } else {
                 return new TypetalkMessage(Emoji.SMILEY, "Build success");
@@ -36,17 +27,25 @@ public class ResultSupport {
         throw new IllegalArgumentException("Unknown build result.");
     }
 
-    public boolean recoverSuccess(Run build) {
-        if (build.getPreviousBuild() == null) {
-            return false;
-        } else {
-            return (inProgressPipeline(build) || build.getResult().equals(Result.SUCCESS))
-                && build.getPreviousBuild().getResult().isWorseThan(Result.SUCCESS);
-        }
+    public boolean isSuccessFromSuccess(Run build) {
+        return isSuccessCurrentBuild(build) && isSuccessPreviousBuild(build) ;
     }
 
-    private boolean inProgressPipeline(Run build) {
-        return build instanceof WorkflowRun && build.getResult() == null;
+    private boolean isSuccessFromFailure(Run build) {
+        return isSuccessCurrentBuild(build) && !isSuccessPreviousBuild(build);
+    }
+
+    private boolean isSuccessCurrentBuild(Run build) {
+        return build instanceof WorkflowRun ? build.getResult() == null : build.getResult().equals(Result.SUCCESS);
+    }
+
+    private boolean isSuccessPreviousBuild(Run build) {
+        if (build.getPreviousCompletedBuild() == null) {
+            // as success when this build is 1st build
+            return true;
+        }
+
+        return build.getPreviousCompletedBuild().getResult().equals(Result.SUCCESS);
     }
 
     public Emoji convertProjectToEmoji(Job project) {
