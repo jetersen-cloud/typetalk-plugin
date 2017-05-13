@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction;
 
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import org.jenkinsci.plugins.typetalk.support.Emoji;
 
 import java.util.List;
@@ -37,13 +37,14 @@ public class ResponseParameter {
         return emoji != null;
     }
 
-    private AbstractProject project;
+    // To be compatible, class and name are different
+    private Job project;
 
-    public AbstractProject getProject() {
+    public Job getProject() {
         return project;
     }
 
-    public void setProject(AbstractProject project) {
+    public void setProject(Job project) {
         this.project = project;
     }
 

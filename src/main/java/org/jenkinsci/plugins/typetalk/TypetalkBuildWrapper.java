@@ -5,13 +5,9 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.support.Emoji;
-import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.delegate.BuildWrapperDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
@@ -37,45 +33,14 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 	@Override
 	public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-		if (notifyStart) {
-			listener.getLogger().println("Notifying build start to Typetalk...");
-
-			String message;
-			if (StringUtils.isBlank(notifyStartMessage)) {
-				TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.LOUDSPEAKER, "Build start");
-				message = typetalkMessage.buildMessageWithBuild(build);
-			} else{
-				message = build.getEnvironment(listener).expand(notifyStartMessage);
-			}
-			Long topicId = Long.valueOf(topicNumber);
-
-			Typetalk.createFromName(name).postMessage(topicId, message);
-		}
+		final BuildWrapperDelegate delegate = new BuildWrapperDelegate(name, Long.valueOf(topicNumber), listener, build);
+		delegate.notifyStart(notifyStart, notifyStartMessage);
 
 		return new Environment() {
 			@Override
 			public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
-				if (notifyEnd && isSuccessBuild(build)) {
-					listener.getLogger().println("Notifying build end to Typetalk...");
-
-					String message;
-					if (StringUtils.isBlank(notifyEndMessage)) {
-						TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.MEGA, "Build end");
-						message = typetalkMessage.buildMessageWithBuild(build);
-					} else {
-						message = build.getEnvironment(listener).expand(notifyEndMessage);
-					}
-					Long topicId = Long.valueOf(topicNumber);
-
-					Typetalk.createFromName(name).postMessage(topicId, message);
-				}
-
+				delegate.notifyEnd(notifyEnd, notifyEndMessage);
 				return true;
-			}
-
-			private boolean isSuccessBuild(AbstractBuild build) {
-				// When there is nothing failure (equals success), getResult hasn't been set yet.
-				return build.getResult() == null || build.getResult().equals(Result.SUCCESS);
 			}
 		};
 	}

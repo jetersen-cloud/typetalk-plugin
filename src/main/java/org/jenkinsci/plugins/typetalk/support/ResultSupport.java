@@ -1,13 +1,20 @@
 package org.jenkinsci.plugins.typetalk.support;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.Result;
+import hudson.model.Run;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 public class ResultSupport {
 
-    public TypetalkMessage convertBuildToMessage(AbstractBuild build) {
-        if (build.getResult().equals(Result.ABORTED)) {
+    public TypetalkMessage convertBuildToMessage(Run build) {
+        if (isSuccessCurrentBuild(build)) {
+            if (isSuccessFromFailure(build)) {
+                return new TypetalkMessage(Emoji.SMILEY, "Build recovery");
+            } else {
+                return new TypetalkMessage(Emoji.SMILEY, "Build success");
+            }
+        } else if (build.getResult().equals(Result.ABORTED)) {
             return new TypetalkMessage(Emoji.ASTONISHED, "Build aborted");
         } else if (build.getResult().equals(Result.NOT_BUILT)) {
             return new TypetalkMessage(Emoji.ASTONISHED, "Not built");
@@ -15,27 +22,33 @@ public class ResultSupport {
             return new TypetalkMessage(Emoji.RAGE, "Build failure");
         } else if (build.getResult().equals(Result.UNSTABLE)) {
             return new TypetalkMessage(Emoji.CRY, "Build unstable");
-        } else if (build.getResult().equals(Result.SUCCESS)) {
-            if (recoverSuccess(build)) {
-                return new TypetalkMessage(Emoji.SMILEY, "Build recovery");
-            } else {
-                return new TypetalkMessage(Emoji.SMILEY, "Build success");
-            }
         }
 
         throw new IllegalArgumentException("Unknown build result.");
     }
 
-    public boolean recoverSuccess(AbstractBuild build) {
-        if (build.getPreviousBuild() == null) {
-            return false;
-        } else {
-            return build.getResult().equals(Result.SUCCESS)
-                && build.getPreviousBuild().getResult().isWorseThan(Result.SUCCESS);
-        }
+    public boolean isSuccessFromSuccess(Run build) {
+        return isSuccessCurrentBuild(build) && isSuccessPreviousBuild(build) ;
     }
 
-    public Emoji convertProjectToEmoji(AbstractProject project) {
+    private boolean isSuccessFromFailure(Run build) {
+        return isSuccessCurrentBuild(build) && !isSuccessPreviousBuild(build);
+    }
+
+    private boolean isSuccessCurrentBuild(Run build) {
+        return build instanceof WorkflowRun ? build.getResult() == null : build.getResult().equals(Result.SUCCESS);
+    }
+
+    private boolean isSuccessPreviousBuild(Run build) {
+        if (build.getPreviousCompletedBuild() == null) {
+            // as success when this build is 1st build
+            return true;
+        }
+
+        return build.getPreviousCompletedBuild().getResult().equals(Result.SUCCESS);
+    }
+
+    public Emoji convertProjectToEmoji(Job project) {
         switch (project.getIconColor()) {
             case RED:
             case RED_ANIME:

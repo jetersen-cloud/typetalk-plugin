@@ -5,16 +5,13 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.typetalk.api.Typetalk;
-import org.jenkinsci.plugins.typetalk.support.ResultSupport;
-import org.jenkinsci.plugins.typetalk.support.TypetalkMessage;
+import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -28,7 +25,7 @@ public class TypetalkNotifier extends Notifier {
 	public final String topicNumber;
 
 	@DataBoundConstructor
-	public TypetalkNotifier(String name, String topicNumber, boolean notifyWhenSuccess) {
+	public TypetalkNotifier(String name, String topicNumber) {
 		this.name = name;
 		this.topicNumber = topicNumber;
 	}
@@ -41,29 +38,8 @@ public class TypetalkNotifier extends Notifier {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
-
-		if (successFromPreviousBuild(build)) {
-			return true;
-		}
-
-		listener.getLogger().println("Notifying build result to Typetalk...");
-
-		TypetalkMessage typetalkMessage = new ResultSupport().convertBuildToMessage(build);
-		String message = typetalkMessage.buildMessageWithBuild(build);
-		Long topicId = Long.valueOf(topicNumber);
-
-		Typetalk.createFromName(name).postMessage(topicId, message);
-
+		new NotifyDelegate(name, Long.valueOf(topicNumber), listener, build).notifyResult();
 		return true;
-	}
-
-	private boolean successFromPreviousBuild(AbstractBuild<?, ?> build) {
-		if (build.getPreviousBuild() == null) {
-			return build.getResult().equals(Result.SUCCESS);
-		} else {
-			return build.getResult().equals(Result.SUCCESS)
-				&& build.getPreviousBuild().getResult().equals(Result.SUCCESS);
-		}
 	}
 
 	@Override

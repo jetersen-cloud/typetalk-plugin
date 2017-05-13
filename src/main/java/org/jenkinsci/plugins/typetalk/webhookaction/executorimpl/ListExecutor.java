@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.typetalk.webhookaction.executorimpl;
 
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.TopLevelItem;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -34,10 +34,10 @@ public class ListExecutor extends WebhookExecutor {
         Emoji CommandEmoji;
 
         for (TopLevelItem item : Jenkins.getInstance().getItems()) {
-            if (!(item instanceof AbstractProject)) {
+            if (!(item instanceof Job)) {
                 continue;
             }
-            AbstractProject project = ((AbstractProject) item);
+            Job project = ((Job) item);
 
             if (pattern != null && !pattern.matcher(project.getName()).find()) {
                 continue;

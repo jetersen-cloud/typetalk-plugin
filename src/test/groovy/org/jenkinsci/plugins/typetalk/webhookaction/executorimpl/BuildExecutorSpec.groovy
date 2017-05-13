@@ -174,18 +174,18 @@ class BuildExecutorSpec extends Specification {
     }
 
     @Unroll
-    def "execute : #username"() {
+    def "execute : authorized is #authorized"() {
         setup:
         setUpRootUrl()
         setUpProject([])
         executor = new BuildExecutor(req, res, "typetalk-plugin", [])
 
-        def old = ACL.impersonate(new TestingAuthenticationToken(username, null, null))
-        setUpAuthorizationStrategy()
+        def old = ACL.impersonate(new TestingAuthenticationToken("test user", null, null))
+        setUpAuthorizationStrategy(authorized)
 
         when:
         executor.execute()
-        if (isBuilt) buildStarted.block()
+        if (authorized) buildStarted.block()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
@@ -195,9 +195,9 @@ class BuildExecutorSpec extends Specification {
         SecurityContextHolder.setContext(old);
 
         where:
-        username         || isBuilt
-        "authorized"     || true
-        "not authorized" || false
+        authorized || isBuilt
+        true       || true
+        false      || false
     }
 
     // --- helper method ---
@@ -228,14 +228,14 @@ class BuildExecutorSpec extends Specification {
         project.lastBuild.getAction(ParametersAction.class).getParameter(key).value
     }
 
-    def setUpAuthorizationStrategy() {
+    def setUpAuthorizationStrategy(authorized) {
         j.jenkins.setAuthorizationStrategy(new AuthorizationStrategy() {
             @Override
             ACL getRootACL() {
                 new ACL() {
                     @Override
                     boolean hasPermission(Authentication a, Permission permission) {
-                        a.name == "authorized"
+                        authorized
                     }
                 }
             }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+
+    <f:entry title="${%Credential}">
+        <select class="setting-input" name="credential.name" description="Select configured credential">
+            <j:forEach var="credential" items="${app.getDescriptor('org.jenkinsci.plugins.typetalk.TypetalkNotifier').credentials}">
+                <f:option selected="${credential.name.equals(instance.name)}">${credential.name}</f:option>
+            </j:forEach>
+        </select>
+    </f:entry>
+
+    <f:entry title="${%Topic Number}" field="topicId">
+        <f:textbox />
+    </f:entry>
+
+</j:jelly>

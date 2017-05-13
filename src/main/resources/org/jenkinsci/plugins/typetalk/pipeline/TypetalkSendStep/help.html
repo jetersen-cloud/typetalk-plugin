@@ -1,0 +1,13 @@
+<div>
+    Use 'catchError' step in order to notify a build error certainly. An example is the following below.
+    <p></p>
+    <pre>
+catchError {
+    sh 'compile'
+    sh 'test'
+    sh 'package'
+    sh 'deploy'
+}
+typetalkSend name: 'demo', topicId: 1
+    </pre>
+</div>
