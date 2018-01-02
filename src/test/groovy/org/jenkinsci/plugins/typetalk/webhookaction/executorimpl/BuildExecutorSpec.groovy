@@ -189,13 +189,13 @@ class BuildExecutorSpec extends Specification {
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
-        isBuilt() == isBuilt
+        isBuilt() == result
 
         cleanup:
         SecurityContextHolder.setContext(old);
 
         where:
-        authorized || isBuilt
+        authorized || result
         true       || true
         false      || false
     }
@@ -229,22 +229,30 @@ class BuildExecutorSpec extends Specification {
     }
 
     def setUpAuthorizationStrategy(authorized) {
-        j.jenkins.setAuthorizationStrategy(new AuthorizationStrategy() {
-            @Override
-            ACL getRootACL() {
-                new ACL() {
-                    @Override
-                    boolean hasPermission(Authentication a, Permission permission) {
-                        authorized
-                    }
+        j.jenkins.setAuthorizationStrategy(new ParameterAuthorizationStrategy(authorized))
+    }
+
+    static class ParameterAuthorizationStrategy extends AuthorizationStrategy implements Serializable {
+        private boolean authorized
+
+        ParameterAuthorizationStrategy(boolean authorized) {
+            this.authorized = authorized
+        }
+
+        @Override
+        ACL getRootACL() {
+            new ACL() {
+                @Override
+                boolean hasPermission(Authentication a, Permission permission) {
+                    authorized
                 }
             }
+        }
 
-            @Override
-            Collection<String> getGroups() {
-                Collections.emptyList()
-            }
-        })
+        @Override
+        Collection<String> getGroups() {
+            Collections.emptyList()
+        }
     }
 
 }
