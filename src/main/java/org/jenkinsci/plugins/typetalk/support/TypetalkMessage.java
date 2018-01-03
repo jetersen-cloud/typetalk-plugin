@@ -2,8 +2,12 @@ package org.jenkinsci.plugins.typetalk.support;
 
 import hudson.model.Job;
 import hudson.model.Run;
+import hudson.scm.ChangeLogSet;
 import jenkins.model.Jenkins;
+import jenkins.scm.RunWithSCM;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 public class TypetalkMessage {
 
@@ -41,6 +45,16 @@ public class TypetalkMessage {
 		builder.append("\n");
 		builder.append(rootUrl);
 		builder.append(build.getUrl());
+
+		if (build instanceof RunWithSCM) {
+			List<ChangeLogSet> changeSets = ((RunWithSCM) build).getChangeSets();
+
+			String uniqueIds = new UniqueIdConverter().changeSetsToAuthorUniqueIds(changeSets);
+			if (StringUtils.isNotEmpty(uniqueIds)) {
+				builder.append("\n\n");
+				builder.append(uniqueIds);
+			}
+		}
 
 		return builder.toString();
 	}
