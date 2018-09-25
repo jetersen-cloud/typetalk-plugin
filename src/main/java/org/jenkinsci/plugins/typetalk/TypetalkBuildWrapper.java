@@ -9,6 +9,7 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import org.jenkinsci.plugins.typetalk.delegate.BuildWrapperDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 
@@ -35,7 +36,11 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 
 	@Override
 	public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-		final BuildWrapperDelegate delegate = new BuildWrapperDelegate(name, Long.valueOf(topicNumber), Long.valueOf(talkNumber), listener, build);
+		Long talkIdLong = null;
+		if (StringUtils.isNotEmpty(talkNumber)) {
+			talkIdLong = Long.parseLong(talkNumber);
+		}
+		final BuildWrapperDelegate delegate = new BuildWrapperDelegate(name, Long.valueOf(topicNumber), talkIdLong, listener, build);
 		delegate.notifyStart(notifyStart, notifyStartMessage);
 
 		return new Environment() {
