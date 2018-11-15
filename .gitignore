@@ -8,3 +8,5 @@ work/
 classes/
 src/test/resources/config.properties
 target
+.idea
+*.iml
