@@ -14,4 +14,12 @@
         <f:textbox />
     </f:entry>
 
+	<f:entry title="${%Talk Number}" field="talkId">
+		<f:textbox />
+	</f:entry>
+
+	<f:entry title="${%Description}" field="description">
+		<f:textbox />
+	</f:entry>
+
 </j:jelly>
