@@ -36,7 +36,9 @@ public class TypetalkSendStep extends AbstractStepImpl {
     }
 
     @Nonnull
-    public String getDescription() { return description; }
+    public String getDescription() {
+        return description;
+    }
 
     @DataBoundConstructor
     public TypetalkSendStep(@Nonnull String name, @Nonnull Long topicId, @Nonnull Long talkId, @Nonnull String description) {
