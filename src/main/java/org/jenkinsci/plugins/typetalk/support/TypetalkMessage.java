@@ -60,7 +60,7 @@ public class TypetalkMessage {
 			}
 		}
 
-		if (description != null) {
+		if (StringUtils.isNotEmpty(description)) {
 			builder.append("\n\n");
 			builder.append(description);
 		}
