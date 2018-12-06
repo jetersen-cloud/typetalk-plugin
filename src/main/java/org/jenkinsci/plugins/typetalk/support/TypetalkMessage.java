@@ -29,7 +29,11 @@ public class TypetalkMessage {
 		this.message = message;
 	}
 
-    public String buildMessageWithBuild(Run build) {
+	public String buildMessageWithBuild(Run build) {
+		return buildMessageWithBuild(build, null);
+	}
+
+	public String buildMessageWithBuild(Run build, String description) {
 		final String rootUrl = Jenkins.getInstance().getRootUrl();
 		if (StringUtils.isEmpty(rootUrl)) {
 			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
@@ -54,6 +58,11 @@ public class TypetalkMessage {
 				builder.append("\n\n");
 				builder.append(uniqueIds);
 			}
+		}
+
+		if (StringUtils.isNotEmpty(description)) {
+			builder.append("\n\n");
+			builder.append(description);
 		}
 
 		return builder.toString();

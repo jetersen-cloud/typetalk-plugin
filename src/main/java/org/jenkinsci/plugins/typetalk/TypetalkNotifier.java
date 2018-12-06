@@ -25,12 +25,14 @@ public class TypetalkNotifier extends Notifier {
 	public final String name;
 	public final String topicNumber;
 	public final String talkId;
+	public final String description;
 
 	@DataBoundConstructor
-	public TypetalkNotifier(String name, String topicNumber, String talkId) {
+	public TypetalkNotifier(String name, String topicNumber, String talkId, String description) {
 		this.name = name;
 		this.topicNumber = topicNumber;
 		this.talkId = talkId;
+		this.description = description;
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class TypetalkNotifier extends Notifier {
 				if (StringUtils.isNotEmpty(talkId)) {
 					talkIdLong = Long.parseLong(talkId);
 				}
-				new NotifyDelegate(name, Long.valueOf(topicNumber), talkIdLong , listener, build).notifyResult();
+				new NotifyDelegate(name, Long.valueOf(topicNumber), talkIdLong, description, listener, build).notifyResult();
 		return true;
 	}
 

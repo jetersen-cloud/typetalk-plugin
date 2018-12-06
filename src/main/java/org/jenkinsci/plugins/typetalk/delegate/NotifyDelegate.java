@@ -16,14 +16,17 @@ public class NotifyDelegate {
 
     private final Long talkId;
 
+    private final String description;
+
     private final TaskListener listener;
 
     private final Run run;
 
-    public NotifyDelegate(String name, Long topicId, Long talkId, TaskListener listener, Run run) {
+    public NotifyDelegate(String name, Long topicId, Long talkId, String description, TaskListener listener, Run run) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
+        this.description = description;
         this.listener = listener;
         this.run = run;
     }
@@ -37,7 +40,7 @@ public class NotifyDelegate {
         listener.getLogger().println("Notifying build result to Typetalk...");
 
         TypetalkMessage typetalkMessage = resultSupport.convertBuildToMessage(run);
-        String message = typetalkMessage.buildMessageWithBuild(run);
+        String message = typetalkMessage.buildMessageWithBuild(run, description);
 
         Typetalk.createFromName(name).postMessage(topicId, message, talkId);
     }
