@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins.ci.cloudbees.com/job/plugins/job/typetalk-plugin/badge/icon)](https://jenkins.ci.cloudbees.com/job/plugins/job/typetalk-plugin/)
+[![Build Status](https://ci.jenkins.io/job/Plugins/job/typetalk-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/typetalk-plugin/job/master/)
 
 This is a Jenkins plugin which notifies to [Typetalk](https://typetalk.com/).
 See [Wiki page](https://wiki.jenkins-ci.org/display/JENKINS/Typetalk+Plugin) for more details.
