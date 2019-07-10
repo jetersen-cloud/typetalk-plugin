@@ -8,6 +8,9 @@ public class MessageEntity {
 	private String message;
 
 	@Key
+	private Boolean ignoreHashtag;
+
+	@Key
 	private Long[] talkIds;
 
 	@Key
@@ -22,6 +25,14 @@ public class MessageEntity {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public void setIgnoreHashtag(Boolean ignoreHashtag) {
+		this.ignoreHashtag = ignoreHashtag;
+	}
+
+	public Boolean getIgnoreHashtag(Boolean ignoreHashtag) {
+		return ignoreHashtag;
 	}
 
 	public Long[] getTalkIds() {

@@ -81,6 +81,11 @@ public class Typetalk {
 		entity.setMessage(message);
 		entity.setTalkIds(new Long[]{talkId});
 
+		// If '#' is included in the message, Typetalk will create a tag.
+		// Set true to prevent from creating tag.
+		// Tags might be created unexpectedly since `#` might be included in the string passed by Jenkins.
+		entity.setIgnoreHashtag(true);
+
 		final HttpContent content = new JsonHttpContent(JSON_FACTORY, entity);
 		final HttpRequest request = createRequestFactory().buildPostRequest(url, content);
 		HttpResponse response = request.execute();
