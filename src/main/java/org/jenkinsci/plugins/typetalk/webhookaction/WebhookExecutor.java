@@ -58,6 +58,11 @@ public abstract class WebhookExecutor {
         jsonObject.element("message", typetalkMessage.buildMessageWithProject(parameter.getProject()));
         jsonObject.element("replyTo", req.getPostId());
 
+        // If '#' is included in the message, Typetalk will create a tag.
+        // Set true to prevent from creating tag.
+        // Tags might be created unexpectedly since `#` might be included in the string passed by Jenkins.
+        jsonObject.element("ignoreHashtag", true);
+
         return jsonObject.toString();
     }
 }
