@@ -69,7 +69,7 @@ public class Typetalk {
 			throw new IllegalArgumentException("Credential is not found.");
 		}
 
-		return new Typetalk(credential.getClientId(), credential.getClientSecret());
+		return new Typetalk(credential.getClientId(), credential.getClientSecret().getPlainText());
 	}
 
 	/**

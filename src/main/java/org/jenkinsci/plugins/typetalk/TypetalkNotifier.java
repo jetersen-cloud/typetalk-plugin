@@ -128,8 +128,8 @@ public class TypetalkNotifier extends Notifier {
 			return clientId;
 		}
 
-		public String getClientSecret() {
-			return Secret.toString(clientSecret);
+		public Secret getClientSecret() {
+			return clientSecret;
 		}
 
 	}
