@@ -36,7 +36,11 @@ public class ResultSupport {
     }
 
     private boolean isSuccessCurrentBuild(Run build) {
-        return build instanceof WorkflowRun ? build.getResult() == null : build.getResult().equals(Result.SUCCESS);
+        final Result result = build.getResult();
+        if (result == null) {
+            return build instanceof WorkflowRun;
+        }
+        return result.equals(Result.SUCCESS);
     }
 
     private boolean isSuccessPreviousBuild(Run build) {
