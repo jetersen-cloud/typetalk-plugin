@@ -9,7 +9,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.TypetalkNotifier;
@@ -25,7 +25,7 @@ public class Typetalk {
 	private static final String SCOPE_TOPIC_POST = "topic.post";
 
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+	private static final JsonFactory JSON_FACTORY = new GsonFactory();
 
 	private Credential createCredential() throws IOException {
 		TokenResponse response =
