@@ -73,7 +73,7 @@ public class Typetalk {
 	}
 
 	/**
-	 * Typetalkにメッセージを通知する
+	 * Post a message to Typetalk
 	 */
 	public int postMessage(final Long topicId, final String message, final Long talkId) throws IOException {
 		final GenericUrl url = new PostMessageUrl(topicId);
