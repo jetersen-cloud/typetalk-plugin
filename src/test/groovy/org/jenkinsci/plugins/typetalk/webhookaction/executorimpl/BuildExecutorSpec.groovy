@@ -7,15 +7,15 @@ import hudson.security.AuthorizationStrategy
 import hudson.security.Permission
 import hudson.util.OneShotEvent
 import jenkins.model.JenkinsLocationConfiguration
-import org.acegisecurity.Authentication
-import org.acegisecurity.context.SecurityContextHolder
-import org.acegisecurity.providers.TestingAuthenticationToken
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookExecutor
 import org.jenkinsci.plugins.typetalk.webhookaction.WebhookRequest
 import org.junit.Rule
 import org.jvnet.hudson.test.JenkinsRule
 import org.jvnet.hudson.test.TestBuilder
 import org.kohsuke.stapler.StaplerResponse
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -58,7 +58,7 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
@@ -75,7 +75,7 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
@@ -92,11 +92,17 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
         getBuildParameter("version") == "1.0.0"
+    }
+
+    private void waitBuild() {
+        while (project.lastBuild == null) {
+            sleep(30L)
+        }
     }
 
     def "execute : multiple parameters"() {
@@ -110,7 +116,7 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
@@ -128,7 +134,7 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
@@ -146,12 +152,12 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
-        getBuildParameter("version") == null
-        getBuildParameter("env") == null
+        getBuildParameter("version") == ""
+        getBuildParameter("env") == ""
     }
 
     def "execute : not set without key when multiple parameters are defined"() {
@@ -165,12 +171,12 @@ class BuildExecutorSpec extends Specification {
 
         when:
         executor.execute()
-        buildStarted.block()
+        waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
-        getBuildParameter("version") == null
-        getBuildParameter("env") == null
+        getBuildParameter("version") == ""
+        getBuildParameter("env") == ""
     }
 
     @Unroll
@@ -180,19 +186,19 @@ class BuildExecutorSpec extends Specification {
         setUpProject([])
         executor = new BuildExecutor(req, res, "typetalk-plugin", [])
 
-        def old = ACL.impersonate(new TestingAuthenticationToken("test user", null, null))
+        def old = ACL.as2(new TestingAuthenticationToken("test user", null, null))
         setUpAuthorizationStrategy(authorized)
 
         when:
         executor.execute()
-        if (authorized) buildStarted.block()
+        if (authorized) waitBuild()
 
         then:
         1 * res.setStatus(HttpServletResponse.SC_OK)
         isBuilt() == result
 
         cleanup:
-        SecurityContextHolder.setContext(old);
+        SecurityContextHolder.setContext(old.previousContext2);
 
         where:
         authorized || result
@@ -242,8 +248,9 @@ class BuildExecutorSpec extends Specification {
         @Override
         ACL getRootACL() {
             new ACL() {
+
                 @Override
-                boolean hasPermission(Authentication a, Permission permission) {
+                boolean hasPermission2(Authentication a, Permission permission) {
                     authorized
                 }
             }
