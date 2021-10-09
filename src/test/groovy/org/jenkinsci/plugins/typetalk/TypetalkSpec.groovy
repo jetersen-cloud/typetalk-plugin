@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.typetalk
 
-import org.apache.commons.httpclient.HttpStatus
+import org.apache.http.HttpStatus
 import org.jenkinsci.plugins.typetalk.api.Typetalk
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -17,10 +17,10 @@ class TypetalkSpec extends Specification {
 	@Ignore("not post normally")
 	def postMessage() {
 		setup:
-		Typetalk typetalk = new Typetalk(config['client.id'], config['client.secret'])
+		Typetalk typetalk = new Typetalk(config['client.id'] as String, config['client.secret'] as String)
 
 		expect:
-		typetalk.postMessage(config['topic.id'].toLong(), "TypetalkSpec : ${new Date()}") == HttpStatus.SC_OK
+		typetalk.postMessage(config['topic.id'] as long, "TypetalkSpec : ${new Date()}", null) == HttpStatus.SC_OK
 	}
 
 }
