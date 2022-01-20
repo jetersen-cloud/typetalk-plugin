@@ -14,7 +14,8 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 
-class HelpExecutorSpec extends Specification {
+@Unroll
+class HelpExecutorTest extends Specification {
 
     @Rule JenkinsRule j
 
@@ -30,7 +31,6 @@ class HelpExecutorSpec extends Specification {
         res.writer >> new PrintWriter(writer)
     }
 
-    @Unroll
     def "execute : parameters #parameters"() {
         setup:
         setUpRootUrl()

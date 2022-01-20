@@ -13,14 +13,14 @@ import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class WebhookExecutorFactorySpec extends Specification {
+@Unroll
+class WebhookExecutorFactoryTest extends Specification {
 
     @Rule JenkinsRule j
 
     def req = Mock(StaplerRequest)
     def res = Mock(StaplerResponse)
 
-    @Unroll
     def "create BuildExecutor : #message"() {
         setup:
         req.reader >> createMockReader(message)
@@ -41,7 +41,6 @@ class WebhookExecutorFactorySpec extends Specification {
         "@jenkins+ build typetalk-plugin version=1.0.0 env=stage" || ["version=1.0.0", "env=stage"]
     }
 
-    @Unroll
     def "create BuildExecutor : #message - with query string"() {
         setup:
         setUpProject()
@@ -86,7 +85,6 @@ class WebhookExecutorFactorySpec extends Specification {
         executor.class == ListExecutor
     }
 
-    @Unroll
     def "create HelpExecutor : #message"() {
         setup:
         req.reader >> createMockReader(message)

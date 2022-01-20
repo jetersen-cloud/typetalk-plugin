@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.TypetalkNotifier;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 
 public class Typetalk {
 
@@ -31,7 +31,7 @@ public class Typetalk {
 		TokenResponse response =
 				new ClientCredentialsTokenRequest(HTTP_TRANSPORT, JSON_FACTORY, new GenericUrl(TOKEN_SERVER_URL))
 						.setClientAuthentication(new BasicAuthentication(clientId, clientSecret))
-						.setScopes(Arrays.asList(SCOPE_TOPIC_POST))
+						.setScopes(Collections.singletonList(SCOPE_TOPIC_POST))
 						.execute();
 
 		return new Credential.Builder(BearerToken.authorizationHeaderAccessMethod())
@@ -63,13 +63,19 @@ public class Typetalk {
 	}
 
 	public static Typetalk createFromName(String name) {
-		TypetalkNotifier.DescriptorImpl descriptor = (TypetalkNotifier.DescriptorImpl) Jenkins.getInstance().getDescriptor(TypetalkNotifier.class);
-		TypetalkNotifier.Credential credential = descriptor.getCredential(name);
-		if (credential == null) {
-			throw new IllegalArgumentException("Credential is not found.");
+		Jenkins jenkins = Jenkins.getInstanceOrNull();
+		if (jenkins != null) {
+			TypetalkNotifier.DescriptorImpl descriptor = (TypetalkNotifier.DescriptorImpl) jenkins.getDescriptor(TypetalkNotifier.class);
+			if (descriptor != null) {
+				TypetalkNotifier.Credential credential = descriptor.getCredential(name);
+				if (credential != null) {
+					return new Typetalk(credential.getClientId(), credential.getClientSecret().getPlainText());
+				}
+				throw new IllegalArgumentException("Credential is not found.");
+			}
+			throw new NullPointerException("Descriptor is null");
 		}
-
-		return new Typetalk(credential.getClientId(), credential.getClientSecret().getPlainText());
+		throw new NullPointerException("Jenkins is not started or is stopped");
 	}
 
 	/**

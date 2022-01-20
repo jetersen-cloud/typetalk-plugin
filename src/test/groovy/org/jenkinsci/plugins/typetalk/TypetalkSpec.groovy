@@ -4,8 +4,10 @@ import org.apache.http.HttpStatus
 import org.jenkinsci.plugins.typetalk.api.Typetalk
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.lang.Unroll
 
-class TypetalkSpec extends Specification {
+@Unroll
+class TypetalkTest extends Specification {
 
 	def config = new Properties()
 

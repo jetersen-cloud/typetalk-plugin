@@ -11,10 +11,10 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -22,116 +22,119 @@ import java.io.Serializable;
 
 public class TypetalkNotifier extends Notifier {
 
-	public final String name;
-	public final String topicNumber;
-	public final String talkId;
-	public final String description;
+    public final String name;
+    public final String topicNumber;
+    public final String talkId;
+    public final String description;
 
-	@DataBoundConstructor
-	public TypetalkNotifier(String name, String topicNumber, String talkId, String description) {
-		this.name = name;
-		this.topicNumber = topicNumber;
-		this.talkId = talkId;
-		this.description = description;
-	}
+    @DataBoundConstructor
+    public TypetalkNotifier(String name, String topicNumber, String talkId, String description) {
+        this.name = name;
+        this.topicNumber = topicNumber;
+        this.talkId = talkId;
+        this.description = description;
+    }
 
-	@Override
-	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.NONE;
-	}
+    @Override
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
+    }
 
-	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-			throws InterruptedException, IOException {
-				Long talkIdLong = null;
-				if (StringUtils.isNotEmpty(talkId)) {
-					talkIdLong = Long.parseLong(talkId);
-				}
-				new NotifyDelegate(name, Long.valueOf(topicNumber), talkIdLong, description, listener, build).notifyResult();
-		return true;
-	}
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+            throws InterruptedException, IOException {
+        Long talkIdLong = null;
+        if (StringUtils.isNotEmpty(talkId)) {
+            talkIdLong = Long.parseLong(talkId);
+        }
+        new NotifyDelegate(name, Long.valueOf(topicNumber), talkIdLong, description, listener, build).notifyResult();
+        return true;
+    }
 
-	@Override
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl) super.getDescriptor();
-	}
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends
-			BuildStepDescriptor<Publisher> {
+    @Extension
+    public static final class DescriptorImpl extends
+            BuildStepDescriptor<Publisher> {
 
-		private volatile Credential[] credentials = new Credential[0];
+        private volatile Credential[] credentials = new Credential[0];
 
-		public Credential[] getCredentials() {
-			return credentials;
-		}
+        public Credential[] getCredentials() {
+            if (credentials == null) {
+				return null;
+            }
+			return credentials.clone();
+        }
 
-		public Credential getCredential(String name) {
-			for (Credential credential : credentials) {
-				if (credential.getName().equals(name)) {
-					return credential;
-				}
-			}
-			return null;
-		}
+        public Credential getCredential(String name) {
+            for (Credential credential : credentials) {
+                if (credential.getName().equals(name)) {
+                    return credential;
+                }
+            }
+            return null;
+        }
 
-		public DescriptorImpl() {
-			super(TypetalkNotifier.class);
-			load();
-		}
+        public DescriptorImpl() {
+            super(TypetalkNotifier.class);
+            load();
+        }
 
-		@Override
-		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-			return true;
-		}
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
 
-		@Override
-		public String getDisplayName() {
-			return "Notify Typetalk when the build fails";
-		}
+        @Override
+        public String getDisplayName() {
+            return "Notify Typetalk when the build fails";
+        }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-			try {
-				credentials = req.bindJSONToList(Credential.class,
-						req.getSubmittedForm().get("credential")).toArray(new Credential[0]);
-				save();
-				return true;
-			} catch (ServletException e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
-	}
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+            try {
+                credentials = req.bindJSONToList(Credential.class,
+                        req.getSubmittedForm().get("credential")).toArray(new Credential[0]);
+                save();
+                return true;
+            } catch (ServletException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+    }
 
-	public static final class Credential implements Serializable {
+    public static final class Credential implements Serializable {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		private final String name;
+        private final String name;
 
-		private final String clientId;
+        private final String clientId;
 
-		private final Secret clientSecret;
+        private final Secret clientSecret;
 
-		@DataBoundConstructor
-		public Credential(String name, String clientId, String clientSecret) {
-			this.name = name;
-			this.clientId = clientId;
-			this.clientSecret = Secret.fromString(clientSecret);
-		}
+        @DataBoundConstructor
+        public Credential(String name, String clientId, String clientSecret) {
+            this.name = name;
+            this.clientId = clientId;
+            this.clientSecret = Secret.fromString(clientSecret);
+        }
 
-		public String getName() {
-			return name;
-		}
+        public String getName() {
+            return name;
+        }
 
-		public String getClientId() {
-			return clientId;
-		}
+        public String getClientId() {
+            return clientId;
+        }
 
-		public Secret getClientSecret() {
-			return clientSecret;
-		}
+        public Secret getClientSecret() {
+            return clientSecret;
+        }
 
-	}
+    }
 
 }
