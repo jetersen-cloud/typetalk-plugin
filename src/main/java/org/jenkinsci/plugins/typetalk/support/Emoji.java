@@ -9,7 +9,8 @@ public enum Emoji {
     SMILEY(":smiley:"),
     MASK(":mask:"),
     BOOK(":book:"),
-    PAGE_FACING_UP(":page_facing_up:");
+    PAGE_FACING_UP(":page_facing_up:"),
+    QUESTION(":question: ");
 
     private String symbol;
 

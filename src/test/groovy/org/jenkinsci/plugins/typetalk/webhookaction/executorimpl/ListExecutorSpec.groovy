@@ -9,7 +9,8 @@ import org.kohsuke.stapler.StaplerResponse
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ListExecutorSpec extends Specification {
+@Unroll
+class ListExecutorTest extends Specification {
 
     @Rule JenkinsRule j
 
@@ -24,7 +25,6 @@ class ListExecutorSpec extends Specification {
         res.writer >> new PrintWriter(writer)
     }
 
-    @Unroll
     def "execute : pattern is '#pattern'"() {
         setup:
         setUpJenkins()

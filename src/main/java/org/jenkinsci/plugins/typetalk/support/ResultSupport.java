@@ -8,20 +8,27 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 public class ResultSupport {
 
     public TypetalkMessage convertBuildToMessage(Run build) {
-        if (isSuccessCurrentBuild(build)) {
-            if (isSuccessFromFailure(build)) {
-                return new TypetalkMessage(Emoji.SMILEY, "Build recovery");
+        if (build != null) {
+            if (isSuccessCurrentBuild(build)) {
+                if (isSuccessFromFailure(build)) {
+                    return new TypetalkMessage(Emoji.SMILEY, "Build recovery");
+                } else {
+                    return new TypetalkMessage(Emoji.SMILEY, "Build success");
+                }
             } else {
-                return new TypetalkMessage(Emoji.SMILEY, "Build success");
+                Result result = build.getResult();
+                if (result != null) {
+                    if (result.equals(Result.ABORTED)) {
+                        return new TypetalkMessage(Emoji.ASTONISHED, "Build aborted");
+                    } else if (result.equals(Result.NOT_BUILT)) {
+                        return new TypetalkMessage(Emoji.ASTONISHED, "Not built");
+                    } else if (result.equals(Result.FAILURE)) {
+                        return new TypetalkMessage(Emoji.RAGE, "Build failure");
+                    } else if (result.equals(Result.UNSTABLE)) {
+                        return new TypetalkMessage(Emoji.CRY, "Build unstable");
+                    }
+                }
             }
-        } else if (build.getResult().equals(Result.ABORTED)) {
-            return new TypetalkMessage(Emoji.ASTONISHED, "Build aborted");
-        } else if (build.getResult().equals(Result.NOT_BUILT)) {
-            return new TypetalkMessage(Emoji.ASTONISHED, "Not built");
-        } else if (build.getResult().equals(Result.FAILURE)) {
-            return new TypetalkMessage(Emoji.RAGE, "Build failure");
-        } else if (build.getResult().equals(Result.UNSTABLE)) {
-            return new TypetalkMessage(Emoji.CRY, "Build unstable");
         }
 
         throw new IllegalArgumentException("Unknown build result.");
@@ -44,12 +51,17 @@ public class ResultSupport {
     }
 
     private boolean isSuccessPreviousBuild(Run build) {
-        if (build.getPreviousCompletedBuild() == null) {
+        final Run previousCompletedBuild = build.getPreviousCompletedBuild();
+        if (previousCompletedBuild == null) {
             // as success when this build is 1st build
             return true;
         }
 
-        return build.getPreviousCompletedBuild().getResult().equals(Result.SUCCESS);
+        final Result result = previousCompletedBuild.getResult();
+        if (result == null) {
+            return false;
+        }
+        return result.equals(Result.SUCCESS);
     }
 
     public Emoji convertProjectToEmoji(Job project) {

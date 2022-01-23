@@ -10,7 +10,8 @@ import org.jvnet.hudson.test.JenkinsRule
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class UniqueIdConverterSpec extends Specification {
+@Unroll
+class UniqueIdConverterTest extends Specification {
 
     @Rule JenkinsRule j
 
@@ -22,7 +23,6 @@ class UniqueIdConverterSpec extends Specification {
         }
     }
 
-    @Unroll
     def "gitChangeSetListToUniqueIds"() {
         setup:
         def changeLogSet = new GitChangeSetList(null, null, names.collect { makeGitChangeSet(it, '') })
@@ -36,7 +36,6 @@ class UniqueIdConverterSpec extends Specification {
         ['name-1', 'dummy']            || ['unique-1']
     }
 
-    @Unroll
     def "gitChangeSetToUniqueId : #name - #email"() {
         setup:
         def gitChangeSet = makeGitChangeSet(name, email)
@@ -51,7 +50,6 @@ class UniqueIdConverterSpec extends Specification {
         'none'   | 'none@example.com'    || ''
     }
 
-    @Unroll
     def "getUniqueIdFromName : #name"() {
         setup:
         def gitChangeSet = makeGitChangeSet(name, '')
@@ -65,7 +63,6 @@ class UniqueIdConverterSpec extends Specification {
         'none'   || Optional.empty()
     }
 
-    @Unroll
     def "getUniqueIdFromEmail : #email"() {
         setup:
         setupUser('empty', 'empty@example.com', null)

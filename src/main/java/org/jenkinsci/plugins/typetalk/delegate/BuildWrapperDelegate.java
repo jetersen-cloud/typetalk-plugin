@@ -63,8 +63,17 @@ public class BuildWrapperDelegate {
     }
 
     private boolean isSuccessBuild(Run run) {
+        if (run == null) {
+            return false;
+        }
+
         // When there is nothing failure (equals success), getResult hasn't been set yet.
-        return run.getResult() == null || run.getResult().equals(Result.SUCCESS);
+        final Result result = run.getResult();
+        if (result == null) {
+            return true;
+        }
+
+        return result.equals(Result.SUCCESS);
     }
 
 }

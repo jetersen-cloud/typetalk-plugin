@@ -21,7 +21,8 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 
-class BuildExecutorSpec extends Specification {
+@Unroll
+class BuildExecutorTest extends Specification {
 
     @Rule JenkinsRule j
 
@@ -35,6 +36,12 @@ class BuildExecutorSpec extends Specification {
 
     def setup() {
         res.writer >> new PrintWriter(new StringWriter())
+    }
+
+    def cleanup() {
+        if (this.project != null) {
+            this.project.delete()
+        }
     }
 
     def "execute : project is not found"() {
@@ -179,7 +186,6 @@ class BuildExecutorSpec extends Specification {
         getBuildParameter("env") == ""
     }
 
-    @Unroll
     def "execute : authorized is #authorized"() {
         setup:
         setUpRootUrl()
@@ -198,7 +204,7 @@ class BuildExecutorSpec extends Specification {
         isBuilt() == result
 
         cleanup:
-        SecurityContextHolder.setContext(old.previousContext2);
+        SecurityContextHolder.setContext(old.previousContext2)
 
         where:
         authorized || result

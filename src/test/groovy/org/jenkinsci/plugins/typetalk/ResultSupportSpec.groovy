@@ -7,9 +7,9 @@ import org.jenkinsci.plugins.typetalk.support.ResultSupport
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ResultSupportSpec extends Specification {
+@Unroll
+class ResultSupportTest extends Specification {
 
-	@Unroll
 	def "convertBuildToMessage : #previousResult to #result"() {
 		setup:
 		def build = makeMockBuild(result, previousResult)
