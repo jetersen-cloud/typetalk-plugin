@@ -17,7 +17,7 @@ You can send notification to Typetalk when the following build events occur
 
 ### Operate Jenkins from Typetalk
 
-You can operate Jenkins by mentioning to a bot in Typetalk and this enables you to do ChatOps. If you can understand Japanese, Refer to [this blog entry](http://nulab-inc.com/ja/blog/typetalk/chatops-without-programming) for more details.
+You can operate Jenkins by mentioning to a bot in Typetalk and this enables you to do ChatOps. If you can understand Japanese, Refer to [this blog entry](https://www.typetalk.com/ja/blog/chatops-without-programming/) for more details.
 
 This plugin provides some features, like build/list projects.
 
