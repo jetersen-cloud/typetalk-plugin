@@ -1,22 +1,15 @@
 package org.jenkinsci.plugins.typetalk.api;
 
-import com.google.api.client.util.Key;
-
 public class MessageEntity {
 
-    @Key
     private String message;
 
-    @Key
     private Boolean ignoreHashtag;
 
-    @Key
     private Long[] talkIds;
 
-    @Key
     private Long replyTo;
 
-    @Key
     private String[] fileKeys;
 
     public String getMessage() {
