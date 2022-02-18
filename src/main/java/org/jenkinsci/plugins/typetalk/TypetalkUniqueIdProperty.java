@@ -6,6 +6,8 @@ import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import javax.annotation.Nonnull;
+
 /**
  * Per user property that is unique id for mention.
  */
@@ -24,6 +26,9 @@ public class TypetalkUniqueIdProperty extends UserProperty {
 
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
+
+        @Override
+        @Nonnull
         public String getDisplayName() {
             return "Typetalk Unique ID";
         }

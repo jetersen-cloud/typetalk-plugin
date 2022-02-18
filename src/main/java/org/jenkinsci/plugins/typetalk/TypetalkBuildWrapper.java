@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.typetalk;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -71,6 +72,7 @@ public class TypetalkBuildWrapper extends BuildWrapper {
 		}
 
 		@Override
+		@NonNull
 		public String getDisplayName() {
 			return "Notify Typetalk when the build starts/ends";
 		}

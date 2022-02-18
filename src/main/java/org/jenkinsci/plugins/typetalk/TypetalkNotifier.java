@@ -16,6 +16,7 @@ import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -42,7 +43,7 @@ public class TypetalkNotifier extends Notifier {
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-            throws InterruptedException, IOException {
+            throws IOException {
         Long talkIdLong = null;
         if (StringUtils.isNotEmpty(talkId)) {
             talkIdLong = Long.parseLong(talkId);
@@ -57,17 +58,9 @@ public class TypetalkNotifier extends Notifier {
     }
 
     @Extension
-    public static final class DescriptorImpl extends
-            BuildStepDescriptor<Publisher> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
         private volatile Credential[] credentials = new Credential[0];
-
-        public Credential[] getCredentials() {
-            if (credentials == null) {
-				return null;
-            }
-			return credentials.clone();
-        }
 
         public Credential getCredential(String name) {
             for (Credential credential : credentials) {
@@ -89,12 +82,13 @@ public class TypetalkNotifier extends Notifier {
         }
 
         @Override
+        @Nonnull
         public String getDisplayName() {
             return "Notify Typetalk when the build fails";
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        public boolean configure(StaplerRequest req, JSONObject json) {
             try {
                 credentials = req.bindJSONToList(Credential.class,
                         req.getSubmittedForm().get("credential")).toArray(new Credential[0]);

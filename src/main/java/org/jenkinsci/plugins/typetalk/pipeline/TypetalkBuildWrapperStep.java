@@ -115,7 +115,7 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
         transient TaskListener listener;
 
         @StepContextParameter
-        transient Run run;
+        transient Run<?, ?> run;
 
         @Override
         public boolean start() throws Exception {
@@ -137,9 +137,9 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
 
         private transient final BuildWrapperDelegate delegate;
 
-        Callback(TypetalkBuildWrapperStep step, TaskListener listener, Run run) {
+        Callback(TypetalkBuildWrapperStep step, TaskListener listener, Run<?, ?> run) {
             this.step = step;
-            delegate = new BuildWrapperDelegate(step.name, step.topicId, step.talkId, listener, run);
+            this.delegate = new BuildWrapperDelegate(step.name, step.topicId, step.talkId, listener, run);
         }
 
         @Override

@@ -77,7 +77,7 @@ public class TypetalkSendStep extends AbstractStepImpl {
         transient TaskListener listener;
 
         @StepContextParameter
-        transient Run run;
+        transient Run<?, ?> run;
 
         @Override
         protected Void run() throws Exception {

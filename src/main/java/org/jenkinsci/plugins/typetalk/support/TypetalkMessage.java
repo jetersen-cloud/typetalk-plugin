@@ -11,80 +11,81 @@ import java.util.List;
 
 public class TypetalkMessage {
 
-	public static final String CODE_SEPARATOR = "```";
+    public static final String CODE_SEPARATOR = "```";
 
-	private final Emoji emoji;
-	private final String message;
+    private final Emoji emoji;
+    private final String message;
 
-	public Emoji getEmoji() {
-		return emoji;
-	}
+    public Emoji getEmoji() {
+        return emoji;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public TypetalkMessage(Emoji emoji, String message) {
-		this.emoji = emoji;
-		this.message = message;
-	}
+    public TypetalkMessage(Emoji emoji, String message) {
+        this.emoji = emoji;
+        this.message = message;
+    }
 
-	public String buildMessageWithBuild(Run build) {
-		return buildMessageWithBuild(build, null);
-	}
+    public String buildMessageWithBuild(Run<?, ?> build) {
+        return buildMessageWithBuild(build, null);
+    }
 
-	public String buildMessageWithBuild(Run build, String description) {
-		final String rootUrl = Jenkins.getInstance().getRootUrl();
-		if (StringUtils.isEmpty(rootUrl)) {
-			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
-		}
+    public String buildMessageWithBuild(Run<?, ?> build, String description) {
+        final String rootUrl = Jenkins.getInstance().getRootUrl();
+        if (StringUtils.isEmpty(rootUrl)) {
+            throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
+        }
 
-		final StringBuilder builder = new StringBuilder();
-		builder.append(emoji.getSymbol());
-		builder.append(" ");
-		builder.append(message);
-		builder.append(" [ ");
-		builder.append(build.getParent().getDisplayName());
-		builder.append(" ]");
-		builder.append("\n");
-		builder.append(rootUrl);
-		builder.append(build.getUrl());
+        final StringBuilder builder = new StringBuilder();
+        builder.append(emoji.getSymbol());
+        builder.append(" ");
+        builder.append(message);
+        builder.append(" [ ");
+        builder.append(build.getParent().getDisplayName());
+        builder.append(" ]");
+        builder.append("\n");
+        builder.append(rootUrl);
+        builder.append(build.getUrl());
 
-		if (build instanceof RunWithSCM) {
-			List<ChangeLogSet> changeSets = ((RunWithSCM) build).getChangeSets();
+        if (build instanceof RunWithSCM) {
+            final RunWithSCM<?, ?> runWithSCM = (RunWithSCM<?, ?>) build;
+            final List<ChangeLogSet<?>> changeSets = runWithSCM.getChangeSets();
 
-			String uniqueIds = new UniqueIdConverter().changeSetsToAuthorUniqueIds(changeSets);
-			if (StringUtils.isNotEmpty(uniqueIds)) {
-				builder.append("\n\n");
-				builder.append(uniqueIds);
-			}
-		}
+            final String uniqueIds = new UniqueIdConverter().changeSetsToAuthorUniqueIds(changeSets);
+            if (StringUtils.isNotEmpty(uniqueIds)) {
+                builder.append("\n\n");
+                builder.append(uniqueIds);
+            }
+        }
 
-		if (StringUtils.isNotEmpty(description)) {
-			builder.append("\n\n");
-			builder.append(description);
-		}
+        if (StringUtils.isNotEmpty(description)) {
+            builder.append("\n\n");
+            builder.append(description);
+        }
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 
-	public String buildMessageWithProject(Job project) {
-		final String rootUrl = Jenkins.getInstance().getRootUrl();
-		if (StringUtils.isEmpty(rootUrl)) {
-			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
-		}
+    public String buildMessageWithProject(Job<?, ?> project) {
+        final String rootUrl = Jenkins.getInstance().getRootUrl();
+        if (StringUtils.isEmpty(rootUrl)) {
+            throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
+        }
 
-		final StringBuilder builder = new StringBuilder();
-		builder.append(emoji.getSymbol());
-		builder.append(" ");
-		builder.append(message);
-		builder.append("\n");
-		builder.append(rootUrl);
-		if (project != null) {
-			builder.append(project.getUrl());
-		}
+        final StringBuilder builder = new StringBuilder();
+        builder.append(emoji.getSymbol());
+        builder.append(" ");
+        builder.append(message);
+        builder.append("\n");
+        builder.append(rootUrl);
+        if (project != null) {
+            builder.append(project.getUrl());
+        }
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 
 }
