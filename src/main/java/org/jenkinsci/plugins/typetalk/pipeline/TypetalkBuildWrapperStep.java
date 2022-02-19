@@ -28,7 +28,6 @@ public class TypetalkBuildWrapperStep extends Step {
     private final Long topicId;
 
     @NonNull
-
     private final Long talkId;
 
     private boolean notifyStart;
