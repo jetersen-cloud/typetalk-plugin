@@ -16,19 +16,18 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Set;
 
 public class TypetalkBuildWrapperStep extends Step {
 
-    @Nonnull
+    @NonNull
     private final String name;
 
-    @Nonnull
+    @NonNull
     private final Long topicId;
 
-    @Nonnull
+    @NonNull
 
     private final Long talkId;
 
@@ -40,17 +39,17 @@ public class TypetalkBuildWrapperStep extends Step {
 
     private String notifyEndMessage;
 
-    @Nonnull
+    @NonNull
     public String getName() {
         return name;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTopicId() {
         return topicId;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTalkId() {
         return talkId;
     }
@@ -92,7 +91,7 @@ public class TypetalkBuildWrapperStep extends Step {
     }
 
     @DataBoundConstructor
-    public TypetalkBuildWrapperStep(@Nonnull String name, @Nonnull Long topicId, @Nonnull Long talkId) {
+    public TypetalkBuildWrapperStep(@NonNull String name, @NonNull Long topicId, @NonNull Long talkId) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
@@ -116,7 +115,7 @@ public class TypetalkBuildWrapperStep extends Step {
             return "withTypetalk";
         }
 
-        @Nonnull
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Notify Typetalk when the build starts/ends";
@@ -151,7 +150,7 @@ public class TypetalkBuildWrapperStep extends Step {
         }
 
         @Override
-        public void stop(@Nonnull Throwable throwable) {
+        public void stop(@NonNull Throwable throwable) {
             // Do nothing
         }
     }

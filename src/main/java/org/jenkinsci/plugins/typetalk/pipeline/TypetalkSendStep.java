@@ -13,45 +13,44 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
 import java.util.Set;
 
 public class TypetalkSendStep extends Step {
 
-    @Nonnull
+    @NonNull
     private final String name;
 
-    @Nonnull
+    @NonNull
     private final Long topicId;
 
-    @Nonnull
+    @NonNull
     private final Long talkId;
 
-    @Nonnull
+    @NonNull
     private final String description;
 
-    @Nonnull
+    @NonNull
     public String getName() {
         return name;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTopicId() {
         return topicId;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTalkId() {
         return talkId;
     }
 
-    @Nonnull
+    @NonNull
     public String getDescription() {
         return description;
     }
 
     @DataBoundConstructor
-    public TypetalkSendStep(@Nonnull String name, @Nonnull Long topicId, @Nonnull Long talkId, @Nonnull String description) {
+    public TypetalkSendStep(@NonNull String name, @NonNull Long topicId, @NonNull Long talkId, @NonNull String description) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
@@ -77,7 +76,7 @@ public class TypetalkSendStep extends Step {
         }
 
         @Override
-        @Nonnull
+        @NonNull
         public String getDisplayName() {
             return "Notify Typetalk when the build fails";
         }

@@ -1,12 +1,11 @@
 package org.jenkinsci.plugins.typetalk;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import javax.annotation.Nonnull;
 
 /**
  * Per user property that is unique id for mention.
@@ -28,7 +27,7 @@ public class TypetalkUniqueIdProperty extends UserProperty {
     public static final class DescriptorImpl extends UserPropertyDescriptor {
 
         @Override
-        @Nonnull
+        @NonNull
         public String getDisplayName() {
             return "Typetalk Unique ID";
         }

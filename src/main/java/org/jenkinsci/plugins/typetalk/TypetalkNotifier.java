@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.typetalk;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -16,7 +17,6 @@ import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -82,7 +82,7 @@ public class TypetalkNotifier extends Notifier {
         }
 
         @Override
-        @Nonnull
+        @NonNull
         public String getDisplayName() {
             return "Notify Typetalk when the build fails";
         }
