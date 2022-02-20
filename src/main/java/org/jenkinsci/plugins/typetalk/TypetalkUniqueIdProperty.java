@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.typetalk;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.User;
 import hudson.model.UserProperty;
@@ -24,6 +25,9 @@ public class TypetalkUniqueIdProperty extends UserProperty {
 
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
+
+        @Override
+        @NonNull
         public String getDisplayName() {
             return "Typetalk Unique ID";
         }

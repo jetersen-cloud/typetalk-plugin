@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 public class ResultSupport {
 
-    public TypetalkMessage convertBuildToMessage(Run build) {
+    public TypetalkMessage convertBuildToMessage(Run<?, ?> build) {
         if (build != null) {
             if (isSuccessCurrentBuild(build)) {
                 if (isSuccessFromFailure(build)) {
@@ -34,15 +34,15 @@ public class ResultSupport {
         throw new IllegalArgumentException("Unknown build result.");
     }
 
-    public boolean isSuccessFromSuccess(Run build) {
-        return isSuccessCurrentBuild(build) && isSuccessPreviousBuild(build) ;
+    public boolean isSuccessFromSuccess(Run<?, ?> build) {
+        return isSuccessCurrentBuild(build) && isSuccessPreviousBuild(build);
     }
 
-    private boolean isSuccessFromFailure(Run build) {
+    private boolean isSuccessFromFailure(Run<?, ?> build) {
         return isSuccessCurrentBuild(build) && !isSuccessPreviousBuild(build);
     }
 
-    private boolean isSuccessCurrentBuild(Run build) {
+    private boolean isSuccessCurrentBuild(Run<?, ?> build) {
         final Result result = build.getResult();
         if (result == null) {
             return build instanceof WorkflowRun;
@@ -50,8 +50,8 @@ public class ResultSupport {
         return result.equals(Result.SUCCESS);
     }
 
-    private boolean isSuccessPreviousBuild(Run build) {
-        final Run previousCompletedBuild = build.getPreviousCompletedBuild();
+    private boolean isSuccessPreviousBuild(Run<?, ?> build) {
+        final Run<?, ?> previousCompletedBuild = build.getPreviousCompletedBuild();
         if (previousCompletedBuild == null) {
             // as success when this build is 1st build
             return true;
@@ -64,7 +64,7 @@ public class ResultSupport {
         return result.equals(Result.SUCCESS);
     }
 
-    public Emoji convertProjectToEmoji(Job project) {
+    public Emoji convertProjectToEmoji(Job<?, ?> project) {
         switch (project.getIconColor()) {
             case RED:
             case RED_ANIME:

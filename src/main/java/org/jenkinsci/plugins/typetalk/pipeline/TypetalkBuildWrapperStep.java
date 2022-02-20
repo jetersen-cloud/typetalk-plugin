@@ -1,38 +1,54 @@
 package org.jenkinsci.plugins.typetalk.pipeline;
 
 
+import com.google.common.collect.ImmutableSet;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import org.jenkinsci.plugins.typetalk.delegate.BuildWrapperDelegate;
-import org.jenkinsci.plugins.workflow.steps.*;
+import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
+import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
+import org.jenkinsci.plugins.workflow.steps.Step;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Set;
 
-public class TypetalkBuildWrapperStep extends AbstractStepImpl {
+public class TypetalkBuildWrapperStep extends Step {
 
-    private final @Nonnull String name;
-    private final @Nonnull Long topicId;
-    private final @Nonnull Long talkId;
+    @NonNull
+    private final String name;
+
+    @NonNull
+    private final Long topicId;
+
+    @NonNull
+    private final Long talkId;
+
     private boolean notifyStart;
+
     private String notifyStartMessage;
+
     private boolean notifyEnd;
+
     private String notifyEndMessage;
 
-    @Nonnull
+    @NonNull
     public String getName() {
         return name;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTopicId() {
         return topicId;
     }
 
-    @Nonnull
+    @NonNull
     public Long getTalkId() {
         return talkId;
     }
@@ -74,17 +90,23 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
     }
 
     @DataBoundConstructor
-    public TypetalkBuildWrapperStep(@Nonnull String name, @Nonnull Long topicId, @Nonnull Long talkId) {
+    public TypetalkBuildWrapperStep(@NonNull String name, @NonNull Long topicId, @NonNull Long talkId) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
     }
 
-    @Extension
-    public static class DescriptorImpl extends AbstractStepDescriptorImpl {
+    @Override
+    public StepExecution start(final StepContext context) {
+        return new TypetalkBuildWrapperStepExecution(context, this);
+    }
 
-        public DescriptorImpl() {
-            super(TypetalkBuildWrapperStepExecution.class);
+    @Extension
+    public static class DescriptorImpl extends StepDescriptor {
+
+        @Override
+        public Set<? extends Class<?>> getRequiredContext() {
+            return ImmutableSet.of(Run.class, TaskListener.class);
         }
 
         @Override
@@ -92,6 +114,7 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
             return "withTypetalk";
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Notify Typetalk when the build starts/ends";
@@ -104,27 +127,29 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
 
     }
 
-    public static class TypetalkBuildWrapperStepExecution extends AbstractStepExecutionImpl {
+    public static class TypetalkBuildWrapperStepExecution extends StepExecution {
 
         private static final long serialVersionUID = 1L;
 
-        @Inject
         transient TypetalkBuildWrapperStep step;
 
-        @StepContextParameter
-        transient TaskListener listener;
-
-        @StepContextParameter
-        transient Run run;
+        public TypetalkBuildWrapperStepExecution(@NonNull final StepContext context, final TypetalkBuildWrapperStep step) {
+            super(context);
+            this.step = step;
+        }
 
         @Override
-        public boolean start() throws Exception {
-            getContext().newBodyInvoker().withCallback(new Callback(step, listener, run)).start();
+        public boolean start() throws IOException, InterruptedException {
+            final StepContext context = getContext();
+            final TaskListener listener = context.get(TaskListener.class);
+            final Run<?, ?> run = context.get(Run.class);
+            final BodyInvoker invoker = context.newBodyInvoker().withCallback(new Callback(step, listener, run));
+            invoker.start();
             return false;
         }
 
         @Override
-        public void stop(@Nonnull Throwable throwable) throws Exception {
+        public void stop(@NonNull Throwable throwable) {
             // Do nothing
         }
     }
@@ -137,9 +162,9 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
 
         private transient final BuildWrapperDelegate delegate;
 
-        Callback(TypetalkBuildWrapperStep step, TaskListener listener, Run run) {
+        Callback(TypetalkBuildWrapperStep step, TaskListener listener, Run<?, ?> run) {
             this.step = step;
-            delegate = new BuildWrapperDelegate(step.name, step.topicId, step.talkId, listener, run);
+            this.delegate = new BuildWrapperDelegate(step.name, step.topicId, step.talkId, listener, run);
         }
 
         @Override
@@ -170,5 +195,4 @@ public class TypetalkBuildWrapperStep extends AbstractStepImpl {
             }
         }
     }
-
 }

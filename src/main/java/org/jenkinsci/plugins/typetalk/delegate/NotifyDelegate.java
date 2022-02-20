@@ -20,9 +20,9 @@ public class NotifyDelegate {
 
     private final TaskListener listener;
 
-    private final Run run;
+    private final Run<?, ?> run;
 
-    public NotifyDelegate(String name, Long topicId, Long talkId, String description, TaskListener listener, Run run) {
+    public NotifyDelegate(String name, Long topicId, Long talkId, String description, TaskListener listener, Run<?, ?> run) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
@@ -32,7 +32,7 @@ public class NotifyDelegate {
     }
 
     public void notifyResult() throws IOException {
-        ResultSupport resultSupport = new ResultSupport();
+        final ResultSupport resultSupport = new ResultSupport();
         if (resultSupport.isSuccessFromSuccess(run)) {
             return;
         }

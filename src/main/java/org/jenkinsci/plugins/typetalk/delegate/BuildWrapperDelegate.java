@@ -20,9 +20,9 @@ public class BuildWrapperDelegate {
 
     private final TaskListener listener;
 
-    private final Run run;
+    private final Run<?, ?> run;
 
-    public BuildWrapperDelegate(String name, Long topicId, Long talkId, TaskListener listener, Run run) {
+    public BuildWrapperDelegate(String name, Long topicId, Long talkId, TaskListener listener, Run<?, ?> run) {
         this.name = name;
         this.topicId = topicId;
         this.talkId = talkId;
@@ -34,7 +34,7 @@ public class BuildWrapperDelegate {
         if (notifyStart) {
             listener.getLogger().println("Notifying build start to Typetalk...");
 
-            String message;
+            final String message;
             if (StringUtils.isBlank(notifyStartMessage)) {
                 TypetalkMessage typetalkMessage = new TypetalkMessage(Emoji.LOUDSPEAKER, "Build start");
                 message = typetalkMessage.buildMessageWithBuild(run);
@@ -62,7 +62,7 @@ public class BuildWrapperDelegate {
         }
     }
 
-    private boolean isSuccessBuild(Run run) {
+    private boolean isSuccessBuild(Run<?, ?> run) {
         if (run == null) {
             return false;
         }

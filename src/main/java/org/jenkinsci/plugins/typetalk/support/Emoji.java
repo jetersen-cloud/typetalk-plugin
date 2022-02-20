@@ -12,7 +12,7 @@ public enum Emoji {
     PAGE_FACING_UP(":page_facing_up:"),
     QUESTION(":question: ");
 
-    private String symbol;
+    private final String symbol;
 
     public String getSymbol() {
         return symbol;

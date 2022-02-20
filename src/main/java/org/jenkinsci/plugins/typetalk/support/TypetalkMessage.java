@@ -11,80 +11,89 @@ import java.util.List;
 
 public class TypetalkMessage {
 
-	public static final String CODE_SEPARATOR = "```";
+    public static final String CODE_SEPARATOR = "```";
 
-	private final Emoji emoji;
-	private final String message;
+    private final Emoji emoji;
+    private final String message;
 
-	public Emoji getEmoji() {
-		return emoji;
-	}
+    public Emoji getEmoji() {
+        return emoji;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public TypetalkMessage(Emoji emoji, String message) {
-		this.emoji = emoji;
-		this.message = message;
-	}
+    public TypetalkMessage(Emoji emoji, String message) {
+        this.emoji = emoji;
+        this.message = message;
+    }
 
-	public String buildMessageWithBuild(Run build) {
-		return buildMessageWithBuild(build, null);
-	}
+    public String buildMessageWithBuild(Run<?, ?> build) {
+        return buildMessageWithBuild(build, null);
+    }
 
-	public String buildMessageWithBuild(Run build, String description) {
-		final String rootUrl = Jenkins.getInstance().getRootUrl();
-		if (StringUtils.isEmpty(rootUrl)) {
-			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
-		}
+    public String buildMessageWithBuild(Run<?, ?> build, String description) {
+        final StringBuilder builder = new StringBuilder(buildMessagePrefix());
+        builder.append(" [ ");
+        builder.append(build.getParent().getDisplayName());
+        builder.append(" ]");
+        builder.append("\n");
+        final String rootUrl = getRootUrl();
+        if (rootUrl != null) {
+            builder.append(rootUrl);
+        }
+        builder.append(build.getUrl());
 
-		final StringBuilder builder = new StringBuilder();
-		builder.append(emoji.getSymbol());
-		builder.append(" ");
-		builder.append(message);
-		builder.append(" [ ");
-		builder.append(build.getParent().getDisplayName());
-		builder.append(" ]");
-		builder.append("\n");
-		builder.append(rootUrl);
-		builder.append(build.getUrl());
+        if (build instanceof RunWithSCM) {
+            final RunWithSCM<?, ?> runWithSCM = (RunWithSCM<?, ?>) build;
+            final List<ChangeLogSet<?>> changeSets = runWithSCM.getChangeSets();
 
-		if (build instanceof RunWithSCM) {
-			List<ChangeLogSet> changeSets = ((RunWithSCM) build).getChangeSets();
+            final String uniqueIds = new UniqueIdConverter().changeSetsToAuthorUniqueIds(changeSets);
+            if (StringUtils.isNotEmpty(uniqueIds)) {
+                builder.append("\n\n");
+                builder.append(uniqueIds);
+            }
+        }
 
-			String uniqueIds = new UniqueIdConverter().changeSetsToAuthorUniqueIds(changeSets);
-			if (StringUtils.isNotEmpty(uniqueIds)) {
-				builder.append("\n\n");
-				builder.append(uniqueIds);
-			}
-		}
+        if (StringUtils.isNotEmpty(description)) {
+            builder.append("\n\n");
+            builder.append(description);
+        }
 
-		if (StringUtils.isNotEmpty(description)) {
-			builder.append("\n\n");
-			builder.append(description);
-		}
+        return builder.toString();
+    }
 
-		return builder.toString();
-	}
+    public String buildMessageWithProject(Job<?, ?> project) {
+        final StringBuilder builder = new StringBuilder(buildMessagePrefix());
+        builder.append("\n");
 
-	public String buildMessageWithProject(Job project) {
-		final String rootUrl = Jenkins.getInstance().getRootUrl();
-		if (StringUtils.isEmpty(rootUrl)) {
-			throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
-		}
+        final String rootUrl = getRootUrl();
+        if (rootUrl != null) {
+            builder.append(rootUrl);
+        }
 
-		final StringBuilder builder = new StringBuilder();
-		builder.append(emoji.getSymbol());
-		builder.append(" ");
-		builder.append(message);
-		builder.append("\n");
-		builder.append(rootUrl);
-		if (project != null) {
-			builder.append(project.getUrl());
-		}
+        if (project != null) {
+            builder.append(project.getUrl());
+        }
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
+
+    private String buildMessagePrefix() {
+        return emoji.getSymbol() + " " + message;
+    }
+
+    private static String getRootUrl() {
+        final Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (jenkins == null) {
+            return null;
+        }
+        final String rootUrl = jenkins.getRootUrl();
+        if (StringUtils.isEmpty(rootUrl)) {
+            throw new IllegalStateException("Root URL isn't configured yet. Cannot compute absolute URL.");
+        }
+        return rootUrl;
+    }
 
 }

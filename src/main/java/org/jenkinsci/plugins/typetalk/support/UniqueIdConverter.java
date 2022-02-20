@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class UniqueIdConverter {
 
-    public String changeSetsToAuthorUniqueIds(List<ChangeLogSet> changeSets) {
+    public String changeSetsToAuthorUniqueIds(List<ChangeLogSet<?>> changeSets) {
         Set<String> uniqueIds = changeSets.stream()
                 .filter(GitChangeSetList.class::isInstance)
                 .map(GitChangeSetList.class::cast)
