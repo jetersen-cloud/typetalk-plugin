@@ -63,7 +63,7 @@ public class TypetalkNotifier extends Notifier {
         private volatile Credential[] credentials = new Credential[0];
 
         public Credential[] getCredentials() {
-            return credentials;
+            return credentials.clone();
         }
 
         public Credential getCredential(String name) {
