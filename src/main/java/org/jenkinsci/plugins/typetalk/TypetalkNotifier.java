@@ -62,6 +62,10 @@ public class TypetalkNotifier extends Notifier {
 
         private volatile Credential[] credentials = new Credential[0];
 
+        public Credential[] getCredentials() {
+            return credentials;
+        }
+
         public Credential getCredential(String name) {
             for (Credential credential : credentials) {
                 if (credential.getName().equals(name)) {
